@@ -41,7 +41,7 @@ export function ReferenceSync() {
     >
       {msg ? <div className="msg-banner">{msg}</div> : null}
       {busy ? (
-        <div className="msg-banner" style={{ borderColor: 'rgba(99, 102, 241, 0.4)' }}>
+        <div className="msg-banner" style={{ borderColor: 'rgba(0, 91, 171, 0.35)' }}>
           Выполняется: {busy}…
         </div>
       ) : null}

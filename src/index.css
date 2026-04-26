@@ -1,29 +1,33 @@
+/* Светлая тема по макету МАКЕТ.pptx / НИЯУ МИФИ: белый фон, синий #005BAB, акцент #00B5E2, Montserrat. */
 :root {
-  --bg-void: #05070a;
-  --bg-root: #080b10;
-  --bg-panel: #0d1118;
-  --bg-raised: #121a24;
-  --bg-elevated: #161d2a;
-  --border: rgba(98, 116, 142, 0.35);
-  --border-bright: rgba(94, 234, 212, 0.25);
-  --text: #e8edf4;
-  --text-muted: #8b9cb3;
-  --text-faint: #5c6b80;
-  --accent: #2dd4bf;
-  --accent-bright: #5eead4;
-  --accent-2: #818cf8;
-  --accent-dim: rgba(45, 212, 191, 0.12);
-  --accent-glow: rgba(45, 212, 191, 0.22);
-  --warning: #fbbf24;
-  --danger: #f87171;
+  --mephi-blue: #005bab;
+  --mephi-blue-dark: #004a8f;
+  --mephi-cyan: #00b5e2;
+  --bg-void: #ffffff;
+  --bg-root: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-raised: #f5f5f5;
+  --bg-elevated: #ebebeb;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-bright: rgba(0, 91, 171, 0.35);
+  --text: #333333;
+  --text-muted: #808080;
+  --text-faint: #a6a6a6;
+  --accent: var(--mephi-blue);
+  --accent-bright: #0066cc;
+  --accent-2: var(--mephi-cyan);
+  --accent-dim: rgba(0, 91, 171, 0.08);
+  --accent-glow: rgba(0, 181, 226, 0.2);
+  --warning: #d97706;
+  --danger: #c62828;
   --radius: 12px;
   --radius-sm: 8px;
-  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
-  --font-display: 'Syne', var(--font-sans);
+  --font-sans: 'Montserrat', system-ui, sans-serif;
+  --font-display: 'Montserrat', var(--font-sans);
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   --sidebar-w: 260px;
   --topbar-h: 56px;
-  --shadow-panel: 0 4px 32px rgba(0, 0, 0, 0.45);
+  --shadow-panel: 0 1px 3px rgba(16, 42, 67, 0.06), 0 6px 24px rgba(16, 42, 67, 0.08);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -45,21 +49,18 @@ body {
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  background: var(--bg-void);
-  background-image:
-    radial-gradient(ellipse 120% 80% at 15% -10%, rgba(45, 212, 191, 0.09) 0%, transparent 45%),
-    radial-gradient(ellipse 90% 60% at 100% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 42%),
-    linear-gradient(180deg, var(--bg-void) 0%, var(--bg-root) 40%, #0a0d12 100%);
+  background: #ffffff;
+  background-image: radial-gradient(ellipse 55% 45% at 100% 100%, rgba(0, 91, 171, 0.04) 0%, transparent 55%);
   background-attachment: fixed;
 }
 
 a {
-  color: var(--accent-bright);
+  color: var(--mephi-blue);
   text-decoration: none;
   transition: color 0.15s var(--ease-out);
 }
 a:hover {
-  color: #99f6e4;
+  color: var(--mephi-cyan);
   text-decoration: none;
 }
 
@@ -75,9 +76,9 @@ a:hover {
   display: flex;
   flex-direction: column;
   padding: 1.35rem 0.9rem 1rem;
-  background: linear-gradient(165deg, rgba(15, 20, 32, 0.97) 0%, rgba(8, 11, 18, 0.99) 100%);
+  background: #ffffff;
   border-right: 1px solid var(--border);
-  box-shadow: 4px 0 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.04);
   position: relative;
 }
 .sidebar::before {
@@ -87,8 +88,8 @@ a:hover {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(180deg, var(--accent-bright) 0%, var(--accent-2) 50%, transparent 100%);
-  opacity: 0.65;
+  background: linear-gradient(180deg, var(--mephi-blue) 0%, var(--mephi-cyan) 70%, rgba(0, 181, 226, 0.35) 100%);
+  opacity: 1;
   pointer-events: none;
 }
 
@@ -109,7 +110,7 @@ a:hover {
   font-weight: 700;
   font-size: 1.05rem;
   letter-spacing: 0.02em;
-  color: var(--text);
+  color: var(--mephi-blue);
   line-height: 1.2;
 }
 .sidebar-brand-sub {
@@ -135,15 +136,15 @@ a:hover {
   border: 1px solid transparent;
 }
 .nav-link:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 91, 171, 0.06);
   color: var(--text);
   text-decoration: none;
 }
 .nav-link.active {
-  background: linear-gradient(135deg, var(--accent-dim) 0%, rgba(99, 102, 241, 0.1) 100%);
-  color: var(--accent-bright);
-  border-color: var(--border-bright);
-  box-shadow: 0 0 20px var(--accent-glow);
+  background: linear-gradient(135deg, rgba(0, 91, 171, 0.1) 0%, rgba(0, 181, 226, 0.08) 100%);
+  color: var(--mephi-blue);
+  border-color: rgba(0, 91, 171, 0.25);
+  box-shadow: 0 1px 8px var(--accent-glow);
 }
 .nav-icon {
   display: flex;
@@ -164,7 +165,7 @@ a:hover {
 .sidebar-footer code {
   font-family: var(--font-mono);
   font-size: 0.65rem;
-  color: var(--accent-2);
+  color: var(--mephi-cyan);
 }
 
 .main-wrap {
@@ -174,18 +175,39 @@ a:hover {
   min-width: 0;
   position: relative;
 }
+/* Декоративный атом (стиль слайдов МИФИ), без «коня» — только орбиты + ядро */
+.main-wrap::before {
+  content: '';
+  position: absolute;
+  right: -1.5rem;
+  bottom: 4vh;
+  width: min(380px, 42vw);
+  height: min(380px, 42vw);
+  max-height: 55vh;
+  background: url(/mephi-atom-watermark.svg) no-repeat center;
+  background-size: contain;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+}
+@media (max-width: 720px) {
+  .main-wrap::before {
+    width: min(260px, 70vw);
+    height: min(260px, 70vw);
+    right: -2rem;
+    bottom: 2vh;
+    opacity: 0.05;
+  }
+}
 .main-wrap::after {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(
-      rgba(94, 129, 172, 0.03) 1px,
-      transparent 1px
-    ),
-    linear-gradient(90deg, rgba(94, 129, 172, 0.03) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(0, 91, 171, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 91, 171, 0.04) 1px, transparent 1px);
   background-size: 32px 32px;
   pointer-events: none;
-  opacity: 0.4;
+  opacity: 0.5;
   z-index: 0;
 }
 .main-wrap > * {
@@ -200,9 +222,9 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem 0 1.6rem;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(10, 14, 22, 0.85) 0%, rgba(8, 11, 18, 0.65) 100%);
-  backdrop-filter: blur(10px);
+  border-bottom: none;
+  background: var(--mephi-blue);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .topbar-left {
@@ -210,7 +232,7 @@ a:hover {
   align-items: center;
   gap: 0.6rem;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.95);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-weight: 600;
@@ -220,10 +242,10 @@ a:hover {
   font-size: 0.7rem;
   padding: 0.3rem 0.65rem;
   border-radius: 999px;
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
-  color: var(--accent-bright);
-  box-shadow: 0 0 16px var(--accent-dim);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  box-shadow: none;
 }
 
 /* ——— Page ——— */
@@ -245,17 +267,17 @@ a:hover {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--accent-2);
+  color: var(--mephi-cyan);
   margin-bottom: 0.5rem;
 }
 .page h1,
 .page-title {
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 2.5vw, 1.9rem);
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 0.5rem;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
+  background: linear-gradient(135deg, var(--mephi-blue) 0%, var(--mephi-blue-dark) 40%, var(--mephi-cyan) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -298,7 +320,8 @@ a:hover {
 }
 .stat:hover {
   transform: translateY(-2px);
-  border-color: var(--border-bright);
+  border-color: rgba(0, 91, 171, 0.35);
+  box-shadow: 0 4px 28px rgba(0, 0, 0, 0.08);
 }
 .stat-label {
   font-size: 0.7rem;
@@ -317,7 +340,7 @@ a:hover {
   font-size: 1.5rem;
   font-weight: 500;
   margin-top: 0.4rem;
-  color: var(--accent-bright);
+  color: var(--mephi-blue);
   font-variant-numeric: tabular-nums;
 }
 
@@ -394,17 +417,18 @@ a:hover {
 
 .flow-node {
   position: relative;
-  background: var(--bg-elevated);
+  background: var(--bg-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 0.8rem 0.9rem;
   min-height: 4.2rem;
+  box-shadow: 0 1px 2px rgba(16, 42, 67, 0.04);
 }
 .flow-node h3 {
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--accent-bright);
+  color: var(--mephi-blue);
   margin: 0 0 0.35rem;
   font-weight: 600;
 }
@@ -455,14 +479,14 @@ label.field textarea {
   padding: 0.6rem 0.75rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: var(--bg-void);
+  background: #ffffff;
   color: var(--text);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 label.field input:focus,
 label.field textarea:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--mephi-cyan);
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
@@ -480,12 +504,12 @@ label.field textarea:focus {
   transform: scale(0.98);
 }
 .btn-primary {
-  background: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%);
-  color: #031210;
-  box-shadow: 0 2px 16px rgba(45, 212, 191, 0.35);
+  background: linear-gradient(180deg, var(--mephi-blue) 0%, var(--mephi-blue-dark) 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 12px rgba(0, 91, 171, 0.35);
 }
 .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 4px 24px rgba(45, 212, 191, 0.45);
+  box-shadow: 0 4px 20px rgba(0, 91, 171, 0.4);
 }
 .btn-primary:disabled {
   opacity: 0.45;
@@ -530,7 +554,7 @@ label.field textarea:focus {
 .code-window {
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background: #06080c;
+  background: #f8fafc;
   overflow: hidden;
   box-shadow: var(--shadow-panel);
 }
@@ -539,7 +563,7 @@ label.field textarea:focus {
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 0.9rem;
-  background: var(--bg-raised);
+  background: linear-gradient(180deg, #eef4fb 0%, #e3edf7 100%);
   border-bottom: 1px solid var(--border);
   font-size: 0.72rem;
   color: var(--text-muted);
@@ -575,7 +599,7 @@ textarea.code-preview {
   line-height: 1.5;
   border: none;
   background: transparent;
-  color: #a5d6cf;
+  color: #1e293b;
   resize: vertical;
 }
 textarea.code-preview::placeholder {
@@ -590,8 +614,8 @@ textarea.code-preview::placeholder {
 .msg-banner {
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
-  background: var(--accent-dim);
-  border: 1px solid var(--border-bright);
+  background: rgba(0, 181, 226, 0.08);
+  border: 1px solid rgba(0, 91, 171, 0.2);
   color: var(--text-muted);
   font-size: 0.86rem;
   margin-bottom: 1rem;
@@ -617,7 +641,7 @@ textarea.code-preview::placeholder {
 }
 .action-card:hover:not(:disabled) {
   border-color: var(--border-bright);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 20px rgba(16, 42, 67, 0.1);
   transform: translateY(-1px);
 }
 .action-card:disabled {
@@ -638,10 +662,10 @@ textarea.code-preview::placeholder {
   line-height: 1.4;
 }
 .action-card.accent-nvd h4 {
-  color: #a5b4fc;
+  color: var(--mephi-blue-dark);
 }
 .action-card.accent-bdu h4 {
-  color: #5eead4;
+  color: var(--mephi-cyan);
 }
 .action-card.accent-warn h4 {
   color: var(--warning);
@@ -667,8 +691,8 @@ table.data td {
   border-bottom: 1px solid var(--border);
 }
 table.data th {
-  background: rgba(18, 26, 38, 0.95);
-  color: var(--text-muted);
+  background: linear-gradient(180deg, #ebebeb 0%, #e0e0e0 100%);
+  color: #555555;
   font-weight: 600;
   text-transform: uppercase;
   font-size: 0.65rem;
@@ -681,7 +705,7 @@ table.data tbody tr {
   transition: background 0.12s;
 }
 table.data tbody tr:hover td {
-  background: rgba(45, 212, 191, 0.04);
+  background: rgba(0, 181, 226, 0.06);
 }
 table.data tr:last-child td {
   border-bottom: none;
@@ -713,24 +737,24 @@ table.data tr:last-child td {
   border: 1px solid var(--border);
 }
 .sev-crit {
-  color: #fecaca;
-  background: rgba(220, 38, 38, 0.2);
-  border-color: rgba(248, 113, 113, 0.4);
+  color: #7f1d1d;
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(185, 28, 28, 0.35);
 }
 .sev-high {
-  color: #fed7aa;
-  background: rgba(234, 88, 12, 0.18);
-  border-color: rgba(251, 146, 60, 0.35);
+  color: #9a3412;
+  background: rgba(234, 88, 12, 0.12);
+  border-color: rgba(234, 88, 12, 0.35);
 }
 .sev-med {
-  color: #fef08a;
-  background: rgba(202, 138, 4, 0.15);
-  border-color: rgba(250, 204, 21, 0.3);
+  color: #854d0e;
+  background: rgba(202, 138, 4, 0.14);
+  border-color: rgba(161, 98, 7, 0.3);
 }
 .sev-low {
-  color: #bfdbfe;
-  background: rgba(37, 99, 235, 0.15);
-  border-color: rgba(96, 165, 250, 0.35);
+  color: #1e40af;
+  background: rgba(37, 99, 235, 0.1);
+  border-color: rgba(59, 130, 246, 0.35);
 }
 .sev-unk {
   color: var(--text-muted);

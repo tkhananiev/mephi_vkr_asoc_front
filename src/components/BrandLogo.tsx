@@ -3,8 +3,8 @@ export function BrandLogo({ size = 36 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden>
       <defs>
         <linearGradient id="asoc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#5eead4" />
-          <stop offset="100%" stopColor="#6366f1" />
+          <stop offset="0%" stopColor="#005bab" />
+          <stop offset="100%" stopColor="#00b5e2" />
         </linearGradient>
       </defs>
       <rect x="2" y="2" width="36" height="36" rx="9" fill="url(#asoc-grad)" opacity="0.22" />
