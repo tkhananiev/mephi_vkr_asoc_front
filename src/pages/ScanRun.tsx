@@ -4,8 +4,8 @@ import type { PassportResponse } from '../api/types'
 import { PageFrame } from '../layout/PageFrame'
 
 const defaultBody = {
-  target_path: '/app/demo/vulnerable-app',
-  semgrep_config: '/app/demo/semgrep-rules.yml',
+  target_path: '/app/demo/scan-targets/WebGoat/',
+  semgrep_config: 'p/java',
 }
 
 export function ScanRun() {
