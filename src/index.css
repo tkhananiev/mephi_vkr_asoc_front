@@ -343,6 +343,14 @@ a:hover {
   color: var(--mephi-blue);
   font-variant-numeric: tabular-nums;
 }
+.stat--link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.stat--link:hover {
+  color: inherit;
+}
 
 /* ——— Cards & flow ——— */
 .card {
@@ -758,4 +766,105 @@ table.data tr:last-child td {
 }
 .sev-unk {
   color: var(--text-muted);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.muted {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+.cell-path {
+  max-width: 28rem;
+  word-break: break-all;
+}
+.report-group .card-title {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+.report-group-key {
+  display: inline-block;
+  max-width: 100%;
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 0.2rem 0.45rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.health-card {
+  padding: 1rem 1.1rem;
+  margin: 0;
+}
+.health-card-hd {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+.health-card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+.health-card-meta {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  margin-top: 0.2rem;
+}
+
+.health-lamp {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
+  background: var(--bg-raised);
+}
+.health-lamp-dot {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+.health-lamp--ok {
+  border-color: rgba(22, 163, 74, 0.45);
+  background: rgba(22, 163, 74, 0.12);
+}
+.health-lamp--ok .health-lamp-dot {
+  background: #16a34a;
+  box-shadow: 0 0 10px rgba(22, 163, 74, 0.5);
+}
+.health-lamp--fail {
+  border-color: rgba(198, 40, 40, 0.45);
+  background: rgba(198, 40, 40, 0.1);
+}
+.health-lamp--fail .health-lamp-dot {
+  background: var(--danger);
+}
+.health-lamp--pending .health-lamp-dot {
+  background: var(--text-faint);
+  animation: health-pulse 1s ease-in-out infinite;
+}
+@keyframes health-pulse {
+  50% {
+    opacity: 0.35;
+  }
 }

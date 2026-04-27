@@ -37,7 +37,7 @@ export function ScanRun() {
     <PageFrame
       eyebrow="Сценарий"
       title="Скан и паспорт"
-      lead="Полный проход: Semgrep → processing → группы → тикеты. Пути target и правила — внутри контейнера semgrep."
+      lead="Запуск полного сценария через API. Параметры — пути внутри контейнера semgrep-service."
       badge="api-service :8080"
     >
       <div className="split">

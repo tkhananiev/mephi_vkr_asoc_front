@@ -48,3 +48,18 @@ export interface SyncRunRow {
   finished_at?: string
   error_message?: string
 }
+
+/** Строка отчёта: одна уязвимость; в UI группируется по group_id */
+export interface VulnerabilityReportRow {
+  group_id: number
+  group_key: string
+  vulnerability_id: number
+  cve: string
+  bdu_id: string
+  scanner_name: string
+  asset_path: string
+  version: string
+  severity: string
+  run_at?: string
+  catalog_source?: string
+}

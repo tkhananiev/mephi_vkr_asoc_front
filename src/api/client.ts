@@ -1,4 +1,10 @@
-import type { GroupRow, PassportResponse, ScanRequestBody, SyncRunRow } from './types'
+import type {
+  GroupRow,
+  PassportResponse,
+  ScanRequestBody,
+  SyncRunRow,
+  VulnerabilityReportRow,
+} from './types'
 
 async function parseJSON<T>(res: Response): Promise<T> {
   const text = await res.text()
@@ -54,4 +60,30 @@ export async function fetchSyncRuns(
   }
   const data = await parseJSON<SyncRunRow[]>(res)
   return { ok: true, data }
+}
+
+export async function fetchVulnerabilityReport(
+  limit = 300,
+): Promise<{ ok: true; data: VulnerabilityReportRow[] } | { ok: false; error: string }> {
+  const res = await fetch(`/api/v1/report/vulnerabilities?limit=${limit}`)
+  if (!res.ok) {
+    const err = await parseJSON<{ error?: string }>(res).catch(() => ({}) as { error?: string })
+    return { ok: false, error: err.error ?? `HTTP ${res.status}` }
+  }
+  const data = await parseJSON<VulnerabilityReportRow[]>(res)
+  return { ok: true, data }
+}
+
+export type HealthStatus = 'ok' | 'fail' | 'pending'
+
+export async function probeHealth(path: string): Promise<HealthStatus> {
+  try {
+    const res = await fetch(path, { method: 'GET' })
+    if (!res.ok) return 'fail'
+    const j = (await parseJSON<{ status?: string }>(res).catch(() => ({}))) as { status?: string }
+    if (j.status === 'ok') return 'ok'
+    return 'ok'
+  } catch {
+    return 'fail'
+  }
 }

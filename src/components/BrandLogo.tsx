@@ -1,22 +1,23 @@
+import { useId } from 'react'
+
+/** Значок атома в стиле НИЯУ МИФИ (три эллипса + ядро), как в public/mephi-atom-watermark.svg */
 export function BrandLogo({ size = 36 }: { size?: number }) {
+  const gid = useId().replace(/:/g, '')
+  const gradId = `mephi-atom-grad-${gid}`
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden>
+    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" aria-hidden>
       <defs>
-        <linearGradient id="asoc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#005bab" />
           <stop offset="100%" stopColor="#00b5e2" />
         </linearGradient>
       </defs>
-      <rect x="2" y="2" width="36" height="36" rx="9" fill="url(#asoc-grad)" opacity="0.22" />
-      <path
-        d="M10 25V15l6-3.5L22 15v10M10 20l6 3.5L22 20"
-        stroke="url(#asoc-grad)"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <circle cx="20" cy="12" r="2.2" fill="url(#asoc-grad)" />
+      <g stroke={`url(#${gradId})`} strokeWidth="2.8" strokeLinecap="round">
+        <ellipse cx="100" cy="100" rx="72" ry="30" />
+        <ellipse cx="100" cy="100" rx="72" ry="30" transform="rotate(60 100 100)" />
+        <ellipse cx="100" cy="100" rx="72" ry="30" transform="rotate(-60 100 100)" />
+      </g>
+      <circle cx="100" cy="100" r="9" fill={`url(#${gradId})`} />
     </svg>
   )
 }
