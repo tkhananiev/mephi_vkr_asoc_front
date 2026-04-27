@@ -1,13 +1,22 @@
 import type { ReactNode } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { BrandLogo } from '../components/BrandLogo'
-import { IconDashboard, IconDatabase, IconLayers, IconScan } from '../components/Icons'
+import {
+  IconDashboard,
+  IconDatabase,
+  IconLayers,
+  IconPulse,
+  IconReport,
+  IconScan,
+} from '../components/Icons'
 
 const nav: { to: string; label: string; end?: boolean; icon: ReactNode }[] = [
   { to: '/', label: 'Обзор', end: true, icon: <IconDashboard className="nav-icon" /> },
   { to: '/scan', label: 'Сканирование', icon: <IconScan className="nav-icon" /> },
+  { to: '/report', label: 'Отчёт по уязвимостям', icon: <IconReport className="nav-icon" /> },
   { to: '/reference', label: 'Справочник', icon: <IconDatabase className="nav-icon" /> },
   { to: '/groups', label: 'Группы', icon: <IconLayers className="nav-icon" /> },
+  { to: '/admin/health', label: 'Сервисы (health)', icon: <IconPulse className="nav-icon" /> },
 ]
 
 export function AppShell() {
@@ -18,7 +27,7 @@ export function AppShell() {
           <BrandLogo size={40} />
           <div className="sidebar-brand-text">
             <div className="sidebar-brand-title">ASOC</div>
-            <div className="sidebar-brand-sub">orchestrated security findings → tickets</div>
+            <div className="sidebar-brand-sub">НИЯУ МИФИ · учебный контур</div>
           </div>
         </div>
         <nav>
