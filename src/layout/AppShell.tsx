@@ -1,37 +1,87 @@
 import type { ReactNode } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { BrandLogo } from '../components/BrandLogo'
 import {
+  IconBook,
   IconDashboard,
   IconDatabase,
+  IconFolderGit,
   IconLayers,
   IconPulse,
   IconReport,
   IconScan,
 } from '../components/Icons'
+import { SidebarFooterUser } from './SidebarFooterUser'
 
-const nav: { to: string; label: string; end?: boolean; icon: ReactNode }[] = [
-  { to: '/', label: 'Обзор', end: true, icon: <IconDashboard className="nav-icon" /> },
-  { to: '/scan', label: 'Сканирование', icon: <IconScan className="nav-icon" /> },
-  { to: '/report', label: 'Отчёт по уязвимостям', icon: <IconReport className="nav-icon" /> },
-  { to: '/reference', label: 'Справочник', icon: <IconDatabase className="nav-icon" /> },
-  { to: '/groups', label: 'Группы', icon: <IconLayers className="nav-icon" /> },
-  { to: '/admin/health', label: 'Сервисы (health)', icon: <IconPulse className="nav-icon" /> },
+const topNav: { to: string; label: string; end?: boolean; icon: ReactNode }[] = [
+  { to: '/app', label: 'Обзор', end: true, icon: <IconDashboard className="nav-icon" /> },
+  { to: '/app/report', label: 'Отчёт по уязвимостям', icon: <IconReport className="nav-icon" /> },
+  { to: '/app/reference', label: 'Справочник', icon: <IconDatabase className="nav-icon" /> },
+  { to: '/app/groups', label: 'Группы', icon: <IconLayers className="nav-icon" /> },
+]
+
+const sastSub: { to: string; label: string }[] = [
+  { to: '/app/scan/semgrep', label: 'Статический анализ кода' },
+  { to: '/app/scan/gitleaks', label: 'Поиск секретов (Gitleaks)' },
 ]
 
 export function AppShell() {
+  const loc = useLocation()
+  const sastSection = loc.pathname.startsWith('/app/scan')
+
   return (
     <div className="app-root">
       <aside className="sidebar">
         <div className="sidebar-brand">
           <BrandLogo size={40} />
           <div className="sidebar-brand-text">
-            <div className="sidebar-brand-title">ASOC</div>
-            <div className="sidebar-brand-sub">НИЯУ МИФИ · учебный контур</div>
+            <div className="sidebar-brand-title">Atomic</div>
+            <div className="sidebar-brand-sub">Центральный контур управления безопасностью ПО</div>
           </div>
         </div>
         <nav>
-          {nav.map((item) => (
+          <NavLink
+            to="/app"
+            end
+            className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}
+          >
+            <IconDashboard className="nav-icon" />
+            Обзор
+          </NavLink>
+
+          <NavLink
+            to="/app/products/new"
+            className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}
+          >
+            <IconFolderGit className="nav-icon" />
+            Добавить продукт
+          </NavLink>
+
+          <NavLink
+            to="/app/integrations"
+            className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}
+          >
+            <IconPulse className="nav-icon" />
+            Инструменты
+          </NavLink>
+
+          <div className={'nav-group' + (sastSection ? ' nav-group--active' : '')}>
+            <div className="nav-group-label">
+              <IconScan className="nav-icon" />
+              SAST
+            </div>
+            {sastSub.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) => 'nav-link nav-sublink' + (isActive ? ' active' : '')}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
+
+          {topNav.slice(1).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -42,9 +92,15 @@ export function AppShell() {
               {item.label}
             </NavLink>
           ))}
+
+          <NavLink to="/app/guide" end className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>
+            <IconBook className="nav-icon" />
+            Руководство пользователя
+          </NavLink>
         </nav>
-        <div className="sidebar-footer">
-          dev UI · прокси <code>/api</code> на стенд
+        <div className="sidebar-footer sidebar-footer--stack">
+          <SidebarFooterUser />
+          <span className="sidebar-footer-hint">прокси <code>/api</code></span>
         </div>
       </aside>
       <div className="main-wrap">

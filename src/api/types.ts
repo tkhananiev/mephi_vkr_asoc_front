@@ -1,7 +1,56 @@
+/** Ответ `GET /api/v1/integrations` (camelCase/snake совпадает с JSON-сервером). */
+export interface IntegrationCatalogApiItem {
+  id: string
+  kind: string
+  title: string
+  summary: string
+  phase: 'ready' | 'planned'
+  enabled: boolean
+  input_kind: string
+  scanner_name?: string
+  api_scan_path?: string
+  console_path?: string
+  capabilities?: string[]
+  note?: string
+  /** Сводка сети или устаревшее поле; при сохранении может вычисляться из hostname/IP/порта. */
+  network_host?: string
+  /** Сетевое имя хоста (справочно). */
+  network_hostname?: string
+  /** IP-адрес хоста (справочно). */
+  network_ip?: string
+  /** Порт сервиса (справочно). */
+  network_port?: string
+  /** Полный URL POST (generic-scan-runner: …/api/v1/run или свой HTTP-сканер). */
+  scanner_invoke_url?: string
+  /** Шаблон shell для generic-scan-runner: плейсхолдеры {target_path}, {git_repository_url}, … */
+  runner_command?: string
+  /** Подсказка админу: CLI, поля POST и т.д. */
+  invoke_hint?: string
+  /** Шаблон или пример JSON-тела POST для вызова сервиса. */
+  invoke_payload_template?: string
+}
+
+export interface IntegrationsListResponse {
+  integrations: IntegrationCatalogApiItem[]
+}
+
+export interface AdminIntegrationCatalogEntryDTO {
+  source: 'builtin' | 'additional'
+  integration: IntegrationCatalogApiItem
+}
+
 export interface ScanRequestBody {
   scanner_name?: string
   target_path?: string
+  git_repository_url?: string
+  git_repository_ref?: string
   semgrep_config?: string
+}
+
+/** Тело POST /api/v1/scans (`scanner_id` выбирает исполнитель; остальные поля — как у Semgrep-сценария). */
+export type UnifiedScanRequestBody = ScanRequestBody & {
+  scanner_id: string
+  options?: Record<string, unknown>
 }
 
 export interface ProcessingSummary {
@@ -44,9 +93,20 @@ export interface SyncRunRow {
   status: string
   items_discovered?: number
   items_processed?: number
+  items_inserted?: number
+  items_updated?: number
   started_at?: string
   finished_at?: string
   error_message?: string
+}
+
+export interface CatalogStatusResponse {
+  record_counts: Record<string, number>
+  running_syncs: SyncRunRow[]
+  last_completed_at: Record<string, string>
+  nvd_cursor_present: boolean
+  nvd_full_sync_completed: boolean
+  sync_in_progress: boolean
 }
 
 /** Строка отчёта: одна уязвимость; в UI группируется по group_id */

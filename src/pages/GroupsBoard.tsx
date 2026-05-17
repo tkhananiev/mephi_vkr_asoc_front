@@ -45,8 +45,8 @@ export function GroupsBoard() {
     <PageFrame
       eyebrow="Операционка"
       title="Группы уязвимостей"
-      lead="Агрегаты после ingest и корреляции. Одна группа — один логический тикет. Обновите список после скана."
-      badge="processing :8082"
+      lead="Агрегаты после ingest и корреляции. Для вошедшего пользователя — только группы с префиксом его прогонов. Одна группа — один логический тикет."
+      badge="api-service"
     >
       <div className="toolbar-row">
         <button type="button" className="btn btn-ghost" onClick={() => void load()}>

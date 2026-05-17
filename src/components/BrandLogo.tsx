@@ -1,6 +1,6 @@
 import { useId } from 'react'
 
-/** Значок атома в стиле НИЯУ МИФИ (три эллипса + ядро), как в public/mephi-atom-watermark.svg */
+/** Логотип Atomic (градиент орбиты + ядро), см. также public/mephi-atom-watermark.svg */
 export function BrandLogo({ size = 36 }: { size?: number }) {
   const gid = useId().replace(/:/g, '')
   const gradId = `mephi-atom-grad-${gid}`

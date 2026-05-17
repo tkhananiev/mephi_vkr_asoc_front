@@ -59,6 +59,27 @@ export function IconLayers({ className }: { className?: string }) {
   )
 }
 
+export function IconFolderGit({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M4 6a2 2 0 0 1 2-2h3l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <path
+        d="M9.5 14.5 11 16l3.5-3.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 export function IconReport({ className }: { className?: string }) {
   return (
     <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -79,6 +100,37 @@ export function IconPulse({ className }: { className?: string }) {
     <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
         d="M4 12h3l2-6 4 12 2-6h5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  )
+}
+
+export function IconUsers({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="9" cy="7" r="3" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <circle cx="17" cy="8" r="2.25" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <path
+        d="M4 20c.3-2.6 2.4-4.5 5-4.5h.1M14.5 13.5c2.9.3 5 2.7 5 5.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  )
+}
+
+export function IconBook({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M6 5.5 12 7l6-1.5M6 5.5V19l6 1 6-1V5.5M12 18.5 18 17.5M12 7v11.5"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"

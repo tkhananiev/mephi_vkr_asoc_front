@@ -1,4 +1,4 @@
-# Веб-клиент ASOC (`mephi_vkr_asoc_front`)
+# Веб-клиент Atomic (`mephi_vkr_asoc_front`)
 
 Отдельный репозиторий от backend (**`mephi_vkr_asoc`**). Стек: **React + TypeScript + Vite**. Запросы к `/api/v1/...` в dev проксируются на порты сервисов см. **`vite.config.ts`** (`8080` — api/scans, `8081` — sync, `8082`/`8083` — processing/jira).
 
