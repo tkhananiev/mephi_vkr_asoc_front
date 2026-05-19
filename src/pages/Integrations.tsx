@@ -1,10 +1,6 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { fetchIntegrationsCatalog } from '../api/client'
-import {
-  INTEGRATIONS_CATALOG,
-  type IntegrationCatalogEntry,
-} from '../lib/integrationsRegistry'
+import { useIntegrationsCatalog } from '../context/IntegrationsCatalogContext'
+import type { IntegrationCatalogEntry, IntegrationInputKind } from '../lib/integrationsRegistry'
 import { PageFrame } from '../layout/PageFrame'
 
 function kindLabel(k: IntegrationCatalogEntry['kind']): string {
@@ -17,6 +13,19 @@ function kindLabel(k: IntegrationCatalogEntry['kind']): string {
       return 'DAST'
     default:
       return k
+  }
+}
+
+function inputKindLabel(kind: IntegrationInputKind | undefined): string {
+  switch (kind) {
+    case 'filesystem':
+      return 'файловая система'
+    case 'lockfile':
+      return 'манифест / lockfile'
+    case 'http':
+      return 'HTTP-цель'
+    default:
+      return '—'
   }
 }
 
@@ -67,62 +76,48 @@ function statusBadge(row: IntegrationCatalogEntry) {
 }
 
 export function Integrations() {
-  const [rows, setRows] = useState<IntegrationCatalogEntry[]>(() => [...INTEGRATIONS_CATALOG])
-  const [catalogSource, setCatalogSource] = useState<'api' | 'fallback'>('fallback')
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      const fromApi = await fetchIntegrationsCatalog()
-      if (cancelled) return
-      if (fromApi && fromApi.length > 0) {
-        setRows(fromApi)
-        setCatalogSource('api')
-      }
-      setLoading(false)
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  const { entries: rows, loading, reload } = useIntegrationsCatalog()
 
   return (
-    <PageFrame
-      eyebrow="Конфигурация"
-      title="Инструменты"
-      lead="Каталог сканеров с api-service (`GET /api/v1/integrations`). Если запрос не прошёл — подставляем запасной список из сборки."
-      badge="catalog"
-    >
-      <div className="panel-elevated" style={{ padding: '1rem 1.15rem', maxWidth: 960 }}>
-        {loading ? (
-          <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-muted)' }}>Загружаем каталог…</p>
-        ) : null}
-        {!loading && catalogSource === 'fallback' ? (
-          <p
-            className="msg-banner"
-            style={{ marginBottom: '0.85rem', borderColor: 'rgba(0, 91, 171, 0.22)', fontSize: '0.85rem' }}
-          >
-            Каталог с сервера недоступен — показан локальный резерв до восстановления `GET /api/v1/integrations`.
-          </p>
-        ) : null}
+    <PageFrame eyebrow="Конфигурация" title="Инструменты">
+      <div className="panel-elevated" style={{ padding: '1rem 1.15rem', width: '100%', maxWidth: 1280 }}>
+        <div style={{ marginBottom: '0.85rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+          <button type="button" className="btn btn-ghost btn--sm" onClick={() => void reload()} disabled={loading}>
+            {loading ? 'Обновление…' : 'Обновить каталог'}
+          </button>
+          {loading ? (
+            <span style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-muted)' }}>Загружаем каталог…</span>
+          ) : null}
+        </div>
         <div style={{ overflowX: 'auto' }}>
-          <table className="data" style={{ minWidth: 560 }}>
+          <table className="data" style={{ minWidth: 960 }}>
             <thead>
               <tr>
                 <th>Тип</th>
+                <th>Вход</th>
+                <th>Имя в processing</th>
+                <th>Возможности</th>
                 <th>Инструмент</th>
                 <th>Описание</th>
                 <th>Статус</th>
-                <th />
+                <th>Действие</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={row.id}>
                   <td style={{ whiteSpace: 'nowrap', fontWeight: 600 }}>{kindLabel(row.kind)}</td>
+                  <td style={{ whiteSpace: 'nowrap', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
+                    {inputKindLabel(row.inputKind)}
+                  </td>
+                  <td style={{ fontSize: '0.82rem', fontFamily: 'var(--mono, ui-monospace)', wordBreak: 'break-all' }}>
+                    {row.scannerName ?? row.id}
+                  </td>
+                  <td style={{ fontSize: '0.82rem', maxWidth: 200, wordBreak: 'break-word', color: 'var(--text-muted)' }}>
+                    {row.capabilities?.length ? row.capabilities.join(', ') : '—'}
+                  </td>
                   <td>{row.title}</td>
-                  <td style={{ fontSize: '0.88rem', color: 'var(--text-muted)', maxWidth: 360 }}>
+                  <td style={{ fontSize: '0.88rem', color: 'var(--text-muted)', maxWidth: 400 }}>
                     {row.summary.trim() ? row.summary : null}
                     {row.runtime.phase === 'planned' && row.runtime.note ? (
                       <span style={{ display: 'block', marginTop: row.summary.trim() ? 6 : 0 }}>{row.runtime.note}</span>
@@ -137,24 +132,12 @@ export function Integrations() {
                         Открыть
                       </Link>
                     ) : null}
-                    {row.runtime.phase === 'ready' && row.enabled !== false && row.runtime.apiScanPath ? (
-                      <code className="mono" style={{ fontSize: '0.72rem', marginLeft: 8, opacity: 0.75 }}>
-                        {row.runtime.apiScanPath}
-                      </code>
-                    ) : null}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p style={{ margin: '1rem 0 0', fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.55 }}>
-          Дополнительные записи задаёт администратор в консоли управления Atomic Asoc (раздел «Инструменты»). Если у записи указан{' '}
-          <code className="mono">scanner_invoke_url</code>, то <code className="mono">POST /api/v1/scans</code> с тем же{' '}
-          <code className="mono">scanner_id</code>, что и <code className="mono">id</code>, вызывает этот URL (тело запроса как у встроенных
-          сканеров по полям цели). Иначе запись только в каталоге; приём результатов из CI — через{' '}
-          <code className="mono">POST /api/v1/findings/ingest</code>.
-        </p>
       </div>
     </PageFrame>
   )

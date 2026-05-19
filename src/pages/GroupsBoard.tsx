@@ -45,8 +45,7 @@ export function GroupsBoard() {
     <PageFrame
       eyebrow="Операционка"
       title="Группы уязвимостей"
-      lead="Агрегаты после ingest и корреляции. Для вошедшего пользователя — только группы с префиксом его прогонов. Одна группа — один логический тикет."
-      badge="api-service"
+      lead="Группа объединяет находки одного «узла» уязвимости: в ключ записываются идентификатор CVE (его можно уточнить по каталогу, если в отчёте сканера CVE не было), код CWE, компонент и версия — всё через разделитель «::». Стратегия группировки указана в колонке «Правило». Если одна и та же комбинация встретится в других прогонах или в других целях, увеличивается счётчик уязвимостей в группе (каждая новая связанная находка даёт +1), максимальная критичность по группе обновляется. Находку дополнительно пытаются сопоставить с каталогом NVD или БДУ по CVE и, при необходимости, по CWE; это влияет на справочные ссылки и не заменяет ключ группы. Для авторизованного пользователя в списке только группы, порождённые своими прогонами."
     >
       <div className="toolbar-row">
         <button type="button" className="btn btn-ghost" onClick={() => void load()}>
@@ -59,24 +58,23 @@ export function GroupsBoard() {
         <table className="data">
           <thead>
             <tr>
-              <th>id</th>
-              <th>severity</th>
-              <th>assets</th>
-              <th>status</th>
-              <th>group_key</th>
-              <th>rule</th>
+              <th>ID</th>
+              <th>Критичность</th>
+              <th>Уязвимостей в группе</th>
+              <th>Ключ группы</th>
+              <th>Правило</th>
             </tr>
           </thead>
           <tbody>
             {rows === null && !error ? (
               <tr>
-                <td colSpan={6} className="table-empty">
+                <td colSpan={5} className="table-empty">
                   …
                 </td>
               </tr>
             ) : rows && rows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="table-empty">
+                <td colSpan={5} className="table-empty">
                   Групп нет. Сначала выполните сценарий на странице «Сканирование».
                 </td>
               </tr>
@@ -90,12 +88,9 @@ export function GroupsBoard() {
                     <span className={sevClass(severityTone(g.severity_max))}>{g.severity_max}</span>
                   </td>
                   <td>{g.assets_count}</td>
-                  <td>
-                    <span className="badge">{g.status}</span>
-                  </td>
                   <td
                     style={{
-                      maxWidth: 380,
+                      maxWidth: 640,
                       wordBreak: 'break-all',
                       fontSize: '0.76rem',
                       fontFamily: 'var(--font-mono)',

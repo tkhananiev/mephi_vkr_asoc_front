@@ -142,7 +142,7 @@ export function AdminHealth() {
   )
 
   return (
-    <PageFrame brand="admin" eyebrow="Администрирование" title="Состояние сервисов">
+    <PageFrame eyebrow="Администрирование" title="Состояние сервисов">
       <div className="toolbar-row">
         <button type="button" className="btn btn-ghost" onClick={() => void poll()}>
           Проверить сейчас

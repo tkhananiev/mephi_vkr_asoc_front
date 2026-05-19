@@ -12,7 +12,7 @@ export function AdminShell() {
           <div className="sidebar-brand-text">
             <div className="sidebar-brand-duo">
               <span className="sidebar-brand-atomic-inline">Atomic</span>
-              <span className="sidebar-brand-asoc-inline-pill">Asoc</span>
+              <span className="sidebar-brand-asoc-inline-pill">ASOC</span>
             </div>
             <div className="sidebar-brand-sub">Консоль Администратора</div>
           </div>

@@ -1,17 +1,60 @@
-import { type FormEvent, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PageFrame } from '../layout/PageFrame'
-import { createProduct, dedupeBranches, DEFAULT_SEMGREP_MOUNT_PATH } from '../lib/productsStorage'
+import {
+  dedupeBranches,
+  DEFAULT_SEMGREP_MOUNT_PATH,
+  invalidateProductsCache,
+  listProducts,
+  updateProduct,
+  type StoredProduct,
+} from '../lib/productsStorage'
 import { isValidRepoUrl } from '../lib/repoUrl'
 
-export function ProductCreate() {
+export function ProductEdit() {
+  const { productId } = useParams<{ productId: string }>()
   const navigate = useNavigate()
+  const numericId = useMemo(() => {
+    const n = Number(productId)
+    return Number.isFinite(n) ? n : NaN
+  }, [productId])
+
+  const [initial, setInitial] = useState<StoredProduct | null>(null)
+  const [loadErr, setLoadErr] = useState<string | null>(null)
+
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [repositoryUrl, setRepositoryUrl] = useState('')
   const [repositorySubdirectory, setRepositorySubdirectory] = useState('')
   const [branches, setBranches] = useState<string[]>(['main'])
   const [err, setErr] = useState<string | null>(null)
+
+  const refresh = useCallback(async () => {
+    setLoadErr(null)
+    try {
+      invalidateProductsCache()
+      const rows = await listProducts()
+      const p = rows.find((x) => x.id === numericId)
+      if (!p) {
+        setInitial(null)
+        setLoadErr('Продукт не найден.')
+        return
+      }
+      setInitial(p)
+      setName(p.name)
+      setDescription(p.description)
+      setRepositoryUrl(p.repositoryUrl ?? '')
+      setRepositorySubdirectory(p.repositorySubdirectory ?? '')
+      setBranches(p.repositoryBranchRefs?.length ? [...p.repositoryBranchRefs] : [p.repositoryRef || 'main'])
+    } catch (e) {
+      setLoadErr(e instanceof Error ? e.message : String(e))
+    }
+  }, [numericId])
+
+  useEffect(() => {
+    if (!Number.isFinite(numericId)) return
+    void refresh()
+  }, [numericId, refresh])
 
   function updateBranch(idx: number, val: string) {
     setBranches((prev) => {
@@ -32,12 +75,10 @@ export function ProductCreate() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setErr(null)
+    if (!Number.isFinite(numericId) || !initial) return
     const n = name.trim()
     const u = repositoryUrl.trim()
-    const sub = repositorySubdirectory
-      .trim()
-      .replace(/\\/g, '/')
-      .replace(/^\/+|\/+$/g, '')
+    const sub = repositorySubdirectory.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '')
     const normBranches = dedupeBranches(branches)
 
     if (!n) {
@@ -47,11 +88,9 @@ export function ProductCreate() {
 
     try {
       if (!u) {
-        const mount = DEFAULT_SEMGREP_MOUNT_PATH.endsWith('/')
-          ? DEFAULT_SEMGREP_MOUNT_PATH
-          : `${DEFAULT_SEMGREP_MOUNT_PATH}/`
-        await createProduct(n, description, '', 'main', '', mount, ['main'])
-        navigate('/app/products', { replace: true, state: { justCreated: true } })
+        const mount = DEFAULT_SEMGREP_MOUNT_PATH.endsWith('/') ? DEFAULT_SEMGREP_MOUNT_PATH : `${DEFAULT_SEMGREP_MOUNT_PATH}/`
+        await updateProduct(numericId, n, description, '', 'main', '', mount, ['main'])
+        navigate('/app/products', { replace: true })
         return
       }
 
@@ -59,18 +98,46 @@ export function ProductCreate() {
         setErr('Введите корректный адрес репозитория: HTTPS, SSH (git@host:…) или другой URI.')
         return
       }
-      await createProduct(n, description, u, normBranches[0] ?? 'main', sub, '', normBranches)
-      navigate('/app/products', { replace: true, state: { justCreated: true } })
+      await updateProduct(numericId, n, description, u, normBranches[0] ?? 'main', sub, '', normBranches)
+      navigate('/app/products', { replace: true })
     } catch (ex) {
       setErr(ex instanceof Error ? ex.message : String(ex))
     }
   }
 
+  if (!Number.isFinite(numericId)) {
+    return (
+      <PageFrame eyebrow="Продукт" title="Редактор" lead="">
+        <p className="err">Некорректный идентификатор.</p>
+        <Link to="/app/products">К списку</Link>
+      </PageFrame>
+    )
+  }
+
+  if (loadErr) {
+    return (
+      <PageFrame eyebrow="Продукт" title="Редактор" lead="">
+        <p className="err">{loadErr}</p>
+        <Link to="/app/products" className="btn btn-ghost">
+          К списку продуктов
+        </Link>
+      </PageFrame>
+    )
+  }
+
+  if (!initial) {
+    return (
+      <PageFrame eyebrow="Продукт" title="Загрузка…" lead="">
+        <p style={{ color: 'var(--text-muted)' }}>Загрузка карточки продукта…</p>
+      </PageFrame>
+    )
+  }
+
   return (
     <PageFrame
       eyebrow="Продукт"
-      title="Добавить продукт"
-      lead="Продукт сохраняется на сервере в вашей учётной записи. Для SCM: shallow clone и checkout по выбранной ветке при запуске скана в разделе SAST."
+      title="Изменить продукт"
+      lead={`Редактирование «${initial.name}». После сохранения запуск сканирования будет использовать новые параметры SCM.`}
     >
       <div className="panel-elevated" style={{ width: '100%', maxWidth: 960, padding: '1.25rem 1.35rem' }}>
         <form className="form-grid" onSubmit={onSubmit}>
@@ -155,7 +222,7 @@ export function ProductCreate() {
               Отмена
             </Link>
             <button type="submit" className="btn btn-solid">
-              Сохранить продукт
+              Сохранить изменения
             </button>
           </div>
         </form>

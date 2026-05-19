@@ -1,4 +1,4 @@
-/** Ответ `GET /api/v1/integrations` (camelCase/snake совпадает с JSON-сервером). */
+/** Элемент каталога интеграций в ответе бэкенда (поля совпадают с JSON как у сервера). */
 export interface IntegrationCatalogApiItem {
   id: string
   kind: string
@@ -20,7 +20,7 @@ export interface IntegrationCatalogApiItem {
   network_ip?: string
   /** Порт сервиса (справочно). */
   network_port?: string
-  /** Полный URL POST (generic-scan-runner: …/api/v1/run или свой HTTP-сканер). */
+  /** Полный URL при вызове внешнего или встроенного раннер-сканера. */
   scanner_invoke_url?: string
   /** Шаблон shell для generic-scan-runner: плейсхолдеры {target_path}, {git_repository_url}, … */
   runner_command?: string
@@ -45,9 +45,11 @@ export interface ScanRequestBody {
   git_repository_url?: string
   git_repository_ref?: string
   semgrep_config?: string
+  /** Привязка прогона к выбранному продукту в консоли. */
+  console_product_id?: number
 }
 
-/** Тело POST /api/v1/scans (`scanner_id` выбирает исполнитель; остальные поля — как у Semgrep-сценария). */
+/** Тело запроса на запуск сканирования (`scanner_id` — какой исполнитель; остальное как у семgrep-сценария). */
 export type UnifiedScanRequestBody = ScanRequestBody & {
   scanner_id: string
   options?: Record<string, unknown>
@@ -122,4 +124,6 @@ export interface VulnerabilityReportRow {
   severity: string
   run_at?: string
   catalog_source?: string
+  /** Канал прогона: консоль или CI (см. processing_runs.channel). */
+  run_channel?: 'manual' | 'ci'
 }

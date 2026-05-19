@@ -11,12 +11,13 @@ import { Integrations } from './pages/Integrations'
 import { GroupsBoard } from './pages/GroupsBoard'
 import { HomeEntry, LoginEntry, RegisterEntry } from './pages/HomeEntry'
 import { SastScanLayout } from './layout/SastScanLayout'
-import { ReferenceSync } from './pages/ReferenceSync'
 import { ProductCreate } from './pages/ProductCreate'
+import { ProductEdit } from './pages/ProductEdit'
 import { ProductsList } from './pages/ProductsList'
-import { ScanRun } from './pages/ScanRun'
+import { ScanRun, ScanRunRoute } from './pages/ScanRun'
 import { UserHandbook } from './pages/UserHandbook'
 import { VulnerabilityReport } from './pages/VulnerabilityReport'
+import { IntegrationsCatalogProvider } from './context/IntegrationsCatalogContext'
 import { SessionLifecycle } from './session/SessionLifecycle'
 import { AdminProtectedRoute } from './routes/AdminProtectedRoute'
 import { NavigateLoginFresh } from './routes/NavigateLoginFresh'
@@ -46,11 +47,19 @@ export default function App() {
         </Route>
         <Route path="/asoc-admin" element={<Navigate to="/asoc-admin/dashboard" replace />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/app" element={<AppShell />}>
+          <Route element={<ProtectedRoute />}>
+            <Route
+              path="/app"
+              element={
+                <IntegrationsCatalogProvider>
+                  <AppShell />
+                </IntegrationsCatalogProvider>
+              }
+            >
             <Route index element={<Dashboard />} />
             <Route path="integrations" element={<Integrations />} />
             <Route path="products/new" element={<ProductCreate />} />
+            <Route path="products/:productId/edit" element={<ProductEdit />} />
             <Route path="products" element={<ProductsList />} />
             <Route path="projects/new" element={<Navigate to="/app/products/new" replace />} />
             <Route path="projects" element={<Navigate to="/app/products" replace />} />
@@ -58,9 +67,9 @@ export default function App() {
               <Route index element={<Navigate to="semgrep" replace />} />
               <Route path="semgrep" element={<ScanRun scannerId="semgrep" />} />
               <Route path="gitleaks" element={<ScanRun scannerId="gitleaks" />} />
+              <Route path=":scannerId" element={<ScanRunRoute />} />
             </Route>
             <Route path="report" element={<VulnerabilityReport />} />
-            <Route path="reference" element={<ReferenceSync />} />
             <Route path="groups" element={<GroupsBoard />} />
             <Route path="guide" element={<UserHandbook />} />
           </Route>

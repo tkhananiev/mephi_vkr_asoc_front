@@ -73,7 +73,7 @@ function builtinReadOnlyCell(text: string, mono = false): ReactNode {
     <span
       style={{
         display: 'block',
-        maxWidth: 280,
+        maxWidth: 400,
         fontSize: '0.74rem',
         lineHeight: 1.38,
         color: s === '—' ? 'var(--text-muted)' : undefined,
@@ -394,8 +394,8 @@ export function AdminScannerCatalog() {
   }
 
   return (
-    <PageFrame brand="admin" eyebrow="Администрирование инструментов" title="Инструменты">
-      <div style={{ maxWidth: 1280, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <PageFrame eyebrow="Администрирование инструментов" title="Инструменты">
+      <div style={{ maxWidth: 1520, width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {err ? (
           <p className="err" role="alert">
             {err}
@@ -417,15 +417,6 @@ export function AdminScannerCatalog() {
             </ul>
           </div>
         ) : null}
-
-        <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.52 }}>
-          Строки с меткой{' '}
-          <span className="badge" style={{ fontSize: '0.65rem', verticalAlign: 'middle' }}>
-            встроено
-          </span>{' '}
-          — из бинарника api-service, править отсюда нельзя. Ниже — доп. записи из файла на сервере (см.{' '}
-          <code className="mono">PUT …/admin/integrations</code>).
-        </p>
 
         <form onSubmit={onSave} className="card panel-elevated" style={{ padding: '1rem 1.25rem' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem', alignItems: 'center' }}>
@@ -597,12 +588,12 @@ export function AdminScannerCatalog() {
                   <th style={thStyle}>Название</th>
                   <th style={thStyle}>Описание</th>
                   <th style={thStyle}>Тип</th>
-                  <th style={thStyle}>Путь API</th>
-                  <th style={thStyle}>URL POST</th>
-                  <th style={thStyle}>Тело POST</th>
-                  <th style={thStyle}>Команда (shell)</th>
-                  <th style={thStyle}>phase</th>
-                  <th style={thStyle}>вкл.</th>
+                  <th style={thStyle}>Маршрут в консоли</th>
+                  <th style={thStyle}>Адрес вызова</th>
+                  <th style={thStyle}>Тело запроса</th>
+                  <th style={thStyle}>Команда оболочки</th>
+                  <th style={thStyle}>Фаза</th>
+                  <th style={thStyle}>Вкл.</th>
                 </tr>
               </thead>
               <tbody>

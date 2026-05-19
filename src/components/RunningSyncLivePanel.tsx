@@ -5,19 +5,43 @@ function fmt(ts?: string) {
   return String(ts).replace('T', ' ').slice(0, 19)
 }
 
-/** Прогоны со статусом running: reference-data время от времени дописывает items_* прямо в БД во время долгих импортов. */
+function startedMs(iso?: string): number | null {
+  if (!iso) return null
+  const t = Date.parse(iso)
+  return Number.isFinite(t) ? t : null
+}
+
+function elapsedRunning(startedAt?: string): string {
+  const t = startedMs(startedAt)
+  if (t == null) return '—'
+  const sec = Math.max(0, Math.floor((Date.now() - t) / 1000))
+  if (sec < 60) return `${sec} с`
+  const m = Math.floor(sec / 60)
+  const s = sec % 60
+  return `${m} мин ${s} с`
+}
+
+/** Прогоны со статусом running: reference-data дописывает items_* во время долгих импортов; NVD теперь тоже обновляет прогресс по страницам. */
 export function RunningSyncLivePanel({
   rows,
   pollSeconds,
+  waitingForRows,
 }: {
   rows: SyncRunRow[]
   pollSeconds?: number
+  /** Сервер уже сообщил sync_in_progress, но строка прогона ещё не попала в список — показываем полоску и подсказку. */
+  waitingForRows?: boolean
 }) {
-  if (!rows.length) return null
+  const stripLive = pollSeconds != null || waitingForRows
+  if (!stripLive && rows.length === 0) return null
+
   const hint =
     pollSeconds != null
-      ? `Пока синк активен, панель и счётчики каталога обновляются примерно раз в ${pollSeconds} с (опрос GET /api/v1/sync/status).`
-      : null
+      ? `Пока синхронизация активна, этот блок и счётчики каталога опрашиваются примерно раз в ${pollSeconds} с.`
+      : waitingForRows
+        ? 'Ожидаем появление строки прогона в ответе сервера…'
+        : null
+
   return (
     <div
       style={{
@@ -32,40 +56,60 @@ export function RunningSyncLivePanel({
       {hint ? (
         <p style={{ margin: '0 0 0.65rem', fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.45 }}>{hint}</p>
       ) : null}
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-          <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-subtle)' }}>
-              <th style={{ padding: '0.3rem 0.45rem' }}>Источник</th>
-              <th style={{ padding: '0.3rem 0.45rem' }}>Статус</th>
-              <th style={{ padding: '0.3rem 0.45rem' }}>Обнаружено</th>
-              <th style={{ padding: '0.3rem 0.45rem' }}>Обработано</th>
-              <th style={{ padding: '0.3rem 0.45rem' }}>Вставлено</th>
-              <th style={{ padding: '0.3rem 0.45rem' }}>Обновлено</th>
-              <th style={{ padding: '0.3rem 0.45rem' }}>Старт</th>
-              <th style={{ padding: '0.3rem 0.45rem' }}>run id</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                <td style={{ padding: '0.25rem 0.45rem' }} className="mono">
-                  {row.source_code}
-                </td>
-                <td style={{ padding: '0.25rem 0.45rem' }}>{row.status}</td>
-                <td style={{ padding: '0.25rem 0.45rem' }}>{row.items_discovered ?? '—'}</td>
-                <td style={{ padding: '0.25rem 0.45rem' }}>
-                  <strong>{row.items_processed ?? '—'}</strong>
-                </td>
-                <td style={{ padding: '0.25rem 0.45rem' }}>{row.items_inserted ?? '—'}</td>
-                <td style={{ padding: '0.25rem 0.45rem' }}>{row.items_updated ?? '—'}</td>
-                <td style={{ padding: '0.25rem 0.45rem', whiteSpace: 'nowrap', color: 'var(--text-muted)' }}>{fmt(row.started_at)}</td>
-                <td style={{ padding: '0.25rem 0.45rem', color: 'var(--text-muted)' }}>{row.id}</td>
+      {stripLive ? (
+        <div
+          className="sync-progress-track"
+          role="progressbar"
+          aria-busy="true"
+          aria-valuetext="Синхронизация выполняется"
+          style={{ marginBottom: rows.length ? '0.65rem' : 0 }}
+        >
+          <div className="sync-progress-indeterminate" />
+        </div>
+      ) : null}
+      {waitingForRows && rows.length === 0 ? (
+        <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>Строка прогона скоро появится…</p>
+      ) : null}
+      {rows.length > 0 ? (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+            <thead>
+              <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-subtle)' }}>
+                <th style={{ padding: '0.3rem 0.45rem' }}>Источник</th>
+                <th style={{ padding: '0.3rem 0.45rem' }}>Статус</th>
+                <th style={{ padding: '0.3rem 0.45rem' }}>Обнаружено</th>
+                <th style={{ padding: '0.3rem 0.45rem' }}>Обработано</th>
+                <th style={{ padding: '0.3rem 0.45rem' }}>Вставлено</th>
+                <th style={{ padding: '0.3rem 0.45rem' }}>Обновлено</th>
+                <th style={{ padding: '0.3rem 0.45rem' }}>Идёт</th>
+                <th style={{ padding: '0.3rem 0.45rem' }}>Старт</th>
+                <th style={{ padding: '0.3rem 0.45rem' }}>Ид. прогона</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                  <td style={{ padding: '0.25rem 0.45rem' }} className="mono">
+                    {row.source_code}
+                  </td>
+                  <td style={{ padding: '0.25rem 0.45rem' }}>{row.status}</td>
+                  <td style={{ padding: '0.25rem 0.45rem' }}>{row.items_discovered ?? '—'}</td>
+                  <td style={{ padding: '0.25rem 0.45rem' }}>
+                    <strong>{row.items_processed ?? '—'}</strong>
+                  </td>
+                  <td style={{ padding: '0.25rem 0.45rem' }}>{row.items_inserted ?? '—'}</td>
+                  <td style={{ padding: '0.25rem 0.45rem' }}>{row.items_updated ?? '—'}</td>
+                  <td style={{ padding: '0.25rem 0.45rem', whiteSpace: 'nowrap', color: 'var(--text-muted)' }}>
+                    {row.status === 'running' ? elapsedRunning(row.started_at) : '—'}
+                  </td>
+                  <td style={{ padding: '0.25rem 0.45rem', whiteSpace: 'nowrap', color: 'var(--text-muted)' }}>{fmt(row.started_at)}</td>
+                  <td style={{ padding: '0.25rem 0.45rem', color: 'var(--text-muted)' }}>{row.id}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
     </div>
   )
 }

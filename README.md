@@ -2,7 +2,7 @@
 
 Отдельный репозиторий от backend (**`mephi_vkr_asoc`**). Стек: **React + TypeScript + Vite**. Запросы к `/api/v1/...` в dev проксируются на порты сервисов см. **`vite.config.ts`** (`8080` — api/scans, `8081` — sync, `8082`/`8083` — processing/jira).
 
-**Страницы:** дашборд (`/`), Semgrep (`/scan`), синхрон справочников (`/reference`), группы (`/groups`).
+**Страницы:** дашборд (`/app`), сканеры (`/app/scan/...`), группы (`/app/groups`), отчёт (`/app/report`).
 
 ## Запуск в разработке
 

@@ -15,9 +15,9 @@ import { markLoginFormWipe } from '../auth/loginFormWipe'
 import { RunningSyncLivePanel } from '../components/RunningSyncLivePanel'
 import { PageFrame } from '../layout/PageFrame'
 
-const POLL_MS_WHILE_SYNCING = 3000
-const RUN_FETCH_LIMIT = 100
-const RUN_PAGE_SIZE = 12
+const POLL_MS_WHILE_SYNCING = 2500
+const RUN_FETCH_LIMIT = 15
+const RUN_PAGE_SIZE = 5
 const RUN_WINDOW_24H_MS = 24 * 60 * 60 * 1000
 
 function parseStartedAtMs(iso?: string): number | null {
@@ -198,10 +198,14 @@ export function AdminDashboard() {
     setBusy(null)
     if (!r.ok) {
       if (kickIf401(r.error)) return
-      setSyncMsg(r.error)
+      const clash = r.status === 409 ? ' Задача этого типа уже выполняется.' : ''
+      setSyncMsg(`${r.error}${clash}`)
       return
     }
-    setSyncMsg(`Запрос принят (HTTP ${r.status}).`)
+    const hintRu = r.hint ? ` (${r.hint})` : ''
+    setSyncMsg(
+      `Запрос принят (HTTP ${r.status}). Блок «Сейчас в работе» и счётчики обновляются сами каждые ~${Math.round(POLL_MS_WHILE_SYNCING / 1000)} с.${hintRu}`,
+    )
     await loadApi()
   }
 
@@ -210,8 +214,8 @@ export function AdminDashboard() {
   }
 
   return (
-    <PageFrame brand="admin" eyebrow="Администрирование" title="Обзор">
-      <div style={{ maxWidth: 1100, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <PageFrame eyebrow="Администрирование" title="Обзор">
+      <div style={{ maxWidth: 1440, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         {err ? (
           <p className="err" role="alert">
             {err}
@@ -279,12 +283,13 @@ export function AdminDashboard() {
               <RunningSyncLivePanel
                 rows={catalog.running_syncs ?? []}
                 pollSeconds={catalog.sync_in_progress ? POLL_MS_WHILE_SYNCING / 1000 : undefined}
+                waitingForRows={catalog.sync_in_progress && (catalog.running_syncs?.length ?? 0) === 0}
               />
               <div style={{ overflowX: 'auto', marginBottom: '1rem' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                   <thead>
                     <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-subtle)' }}>
-                      <th style={{ padding: '0.35rem 0.5rem' }}>Источник (source_code)</th>
+                      <th style={{ padding: '0.35rem 0.5rem' }}>Источник (код)</th>
                       <th style={{ padding: '0.35rem 0.5rem' }}>Записей</th>
                     </tr>
                   </thead>
@@ -315,7 +320,7 @@ export function AdminDashboard() {
           {syncMsg ? <div className="msg-banner" style={{ marginBottom: '0.75rem' }}>{syncMsg}</div> : null}
           {busy ? (
             <div className="msg-banner" style={{ marginBottom: '0.75rem', borderColor: 'rgba(0, 91, 171, 0.35)' }}>
-              Выполняется: {busy}…
+              Отправка запроса: <strong>{busy}</strong>…
             </div>
           ) : null}
           <div className="action-grid" style={{ marginBottom: '1rem' }}>
@@ -503,7 +508,7 @@ export function AdminDashboard() {
                       <td style={{ padding: '0.35rem 0.5rem', whiteSpace: 'nowrap', color: 'var(--text-muted)' }}>
                         {row.finished_at?.slice(0, 19)?.replace('T', ' ') ?? '—'}
                       </td>
-                      <td style={{ padding: '0.35rem 0.5rem', maxWidth: 280 }} className="mono">
+                      <td style={{ padding: '0.35rem 0.5rem', maxWidth: 420 }} className="mono">
                         {row.error_message
                           ? row.error_message.length > 80
                             ? `${row.error_message.slice(0, 80)}…`

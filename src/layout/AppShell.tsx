@@ -1,45 +1,37 @@
-import type { ReactNode } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useIntegrationsCatalog } from '../context/IntegrationsCatalogContext'
 import { BrandLogo } from '../components/BrandLogo'
 import {
   IconBook,
   IconDashboard,
-  IconDatabase,
-  IconFolderGit,
   IconLayers,
+  IconProducts,
   IconPulse,
-  IconReport,
-  IconScan,
 } from '../components/Icons'
 import { SidebarFooterUser } from './SidebarFooterUser'
 
-const topNav: { to: string; label: string; end?: boolean; icon: ReactNode }[] = [
-  { to: '/app', label: 'Обзор', end: true, icon: <IconDashboard className="nav-icon" /> },
-  { to: '/app/report', label: 'Отчёт по уязвимостям', icon: <IconReport className="nav-icon" /> },
-  { to: '/app/reference', label: 'Справочник', icon: <IconDatabase className="nav-icon" /> },
-  { to: '/app/groups', label: 'Группы', icon: <IconLayers className="nav-icon" /> },
-]
-
-const sastSub: { to: string; label: string }[] = [
-  { to: '/app/scan/semgrep', label: 'Статический анализ кода' },
-  { to: '/app/scan/gitleaks', label: 'Поиск секретов (Gitleaks)' },
-]
-
 export function AppShell() {
   const loc = useLocation()
-  const sastSection = loc.pathname.startsWith('/app/scan')
-
+  const { runnableScans } = useIntegrationsCatalog()
+  /** SAST/отчёт открываются с карточки продукта — подсвечиваем блок «Продукты» и на этих маршрутах. */
+  const productsSubgroupActive =
+    loc.pathname.startsWith('/app/products') ||
+    loc.pathname.startsWith('/app/scan') ||
+    loc.pathname.startsWith('/app/report')
   return (
     <div className="app-root">
       <aside className="sidebar">
         <div className="sidebar-brand">
           <BrandLogo size={40} />
           <div className="sidebar-brand-text">
-            <div className="sidebar-brand-title">Atomic</div>
+            <div className="sidebar-brand-duo">
+              <span className="sidebar-brand-atomic-inline">Atomic</span>
+              <span className="sidebar-brand-asoc-inline-pill">ASOC</span>
+            </div>
             <div className="sidebar-brand-sub">Центральный контур управления безопасностью ПО</div>
           </div>
         </div>
-        <nav>
+        <nav className="sidebar-nav">
           <NavLink
             to="/app"
             end
@@ -49,13 +41,30 @@ export function AppShell() {
             Обзор
           </NavLink>
 
-          <NavLink
-            to="/app/products/new"
-            className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}
-          >
-            <IconFolderGit className="nav-icon" />
-            Добавить продукт
-          </NavLink>
+          <div className={'nav-group nav-group-products' + (productsSubgroupActive ? ' nav-group--active' : '')}>
+            <NavLink
+              to="/app/products"
+              className={
+                'nav-link nav-link--products-only' + (productsSubgroupActive ? ' active' : '')
+              }
+            >
+              <IconProducts className="nav-icon nav-icon--group" />
+              Продукты
+            </NavLink>
+            {runnableScans.map((tool) => {
+              const path = (tool.runtime.phase === 'ready' ? tool.runtime.launchAppPath : '')?.trim() ?? ''
+              if (!path) return null
+              return (
+                <NavLink
+                  key={tool.id}
+                  to={path}
+                  className={({ isActive }) => 'nav-link nav-sublink' + (isActive ? ' active' : '')}
+                >
+                  {tool.title}
+                </NavLink>
+              )
+            })}
+          </div>
 
           <NavLink
             to="/app/integrations"
@@ -65,33 +74,13 @@ export function AppShell() {
             Инструменты
           </NavLink>
 
-          <div className={'nav-group' + (sastSection ? ' nav-group--active' : '')}>
-            <div className="nav-group-label">
-              <IconScan className="nav-icon" />
-              SAST
-            </div>
-            {sastSub.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) => 'nav-link nav-sublink' + (isActive ? ' active' : '')}
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
-
-          {topNav.slice(1).map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end === true}
-              className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}
-            >
-              {item.icon}
-              {item.label}
-            </NavLink>
-          ))}
+          <NavLink
+            to="/app/groups"
+            className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}
+          >
+            <IconLayers className="nav-icon" />
+            Группы
+          </NavLink>
 
           <NavLink to="/app/guide" end className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>
             <IconBook className="nav-icon" />
@@ -100,7 +89,6 @@ export function AppShell() {
         </nav>
         <div className="sidebar-footer sidebar-footer--stack">
           <SidebarFooterUser />
-          <span className="sidebar-footer-hint">прокси <code>/api</code></span>
         </div>
       </aside>
       <div className="main-wrap">

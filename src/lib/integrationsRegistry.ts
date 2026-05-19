@@ -1,9 +1,4 @@
-/**
- * Каталог сканеров для GUI.
- *
- * Источник правды: `GET /api/v1/integrations` (если недоступен — массив `INTEGRATIONS_CATALOG` ниже).
- * В fallback только то, что реально есть у платформы; «заготовки под SCA/DAST» не показываем.
- */
+/** Каталог сканеров для GUI (из ответа бэкенда; при недоступности — `INTEGRATIONS_CATALOG`). */
 
 import type { IntegrationCatalogApiItem, IntegrationsListResponse } from '../api/types'
 
@@ -59,11 +54,15 @@ function mapApiItem(row: IntegrationCatalogApiItem): IntegrationCatalogEntry | n
   if (row.phase === 'planned') {
     return { ...base, runtime: { phase: 'planned', note: row.note } }
   }
+  const trimmedConsole = (row.console_path ?? '').trim()
+  const hasInvoke = (row.scanner_invoke_url ?? '').trim() !== ''
+  const inferredPath =
+    !trimmedConsole && hasInvoke ? `/app/scan/${encodeURIComponent(row.id)}` : undefined
   return {
     ...base,
     runtime: {
       phase: 'ready',
-      launchAppPath: row.console_path || undefined,
+      launchAppPath: trimmedConsole || inferredPath || undefined,
       apiScanPath: row.api_scan_path || undefined,
     },
   }
@@ -72,6 +71,35 @@ function mapApiItem(row: IntegrationCatalogApiItem): IntegrationCatalogEntry | n
 /** Преобразует ответ API в записи таблицы «Инструменты». */
 export function integrationsFromApiResponse(resp: IntegrationsListResponse): IntegrationCatalogEntry[] {
   return resp.integrations.map(mapApiItem).filter((x): x is IntegrationCatalogEntry => x !== null)
+}
+
+/** Приоритет кнопок скана на карточках продуктов (остальные — по названию). */
+export function compareRunnableScanOrder(a: IntegrationCatalogEntry, b: IntegrationCatalogEntry): number {
+  const pri = (id: string) => (id === 'semgrep' ? 0 : id === 'gitleaks' ? 1 : 2)
+  const d = pri(a.id) - pri(b.id)
+  if (d !== 0) return d
+  return a.title.localeCompare(b.title, 'ru')
+}
+
+/** Инструменты, для которых в GUI есть ссылка «Открыть скан» (`launchAppPath`). */
+export function listRunnableIntegrationScans(entries: IntegrationCatalogEntry[]): IntegrationCatalogEntry[] {
+  const out = entries.filter((e) => {
+    if (e.runtime.phase !== 'ready') return false
+    if (e.enabled === false) return false
+    return !!(e.runtime.launchAppPath ?? '').trim()
+  })
+  out.sort(compareRunnableScanOrder)
+  return out
+}
+
+export function lookupIntegration(
+  fetched: IntegrationCatalogEntry[] | null | undefined,
+  id: string,
+): IntegrationCatalogEntry | undefined {
+  const tid = id.trim()
+  const fromFetched = fetched?.find((x) => x.id === tid)
+  if (fromFetched) return fromFetched
+  return INTEGRATIONS_CATALOG.find((x) => x.id === tid)
 }
 
 export const INTEGRATIONS_CATALOG: IntegrationCatalogEntry[] = [
@@ -95,7 +123,7 @@ export const INTEGRATIONS_CATALOG: IntegrationCatalogEntry[] = [
     inputKind: 'filesystem',
     capabilities: ['secrets', 'filesystem_target'],
     enabled: true,
-    runtime: { phase: 'ready', launchAppPath: '/app/scan/gitleaks', apiScanPath: '/api/v1/scans' },
+    runtime: { phase: 'ready', launchAppPath: '/app/scan/gitleaks', apiScanPath: '/api/v1/scans/gitleaks' },
   },
 ]
 

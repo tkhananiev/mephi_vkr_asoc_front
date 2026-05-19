@@ -461,7 +461,7 @@ export async function adminPutIntegrationOverlay(
   return { ok: true }
 }
 
-/** Каталог интеграций с api-service; при ошибке — `null` (тогда используйте локальный `INTEGRATIONS_CATALOG`). */
+/** Каталог интеграций; при ошибке — `null` (останется локальный `INTEGRATIONS_CATALOG`). */
 export async function fetchIntegrationsCatalog(): Promise<IntegrationCatalogEntry[] | null> {
   try {
     const res = await apiFetch('/api/v1/integrations')
@@ -474,7 +474,7 @@ export async function fetchIntegrationsCatalog(): Promise<IntegrationCatalogEntr
   }
 }
 
-/** Запуск сценария через `POST /api/v1/scans` с нужным `scanner_id`. */
+/** Запуск сценария сканирования (unified SCAN) с нужным сканером. */
 export async function runUnifiedScanScenario(
   scannerId: string,
   body: ScanRequestBody,
@@ -493,7 +493,23 @@ export async function runUnifiedScanScenario(
   return { ok: true, data }
 }
 
-/** Запуск сценария Semgrep через общий вход `POST /api/v1/scans`. */
+/** Запуск Gitleaks тем же пайплайном (POST `/api/v1/scans/gitleaks`, без `scanner_id`). */
+export async function runGitleaksScenario(
+  _scannerId: string,
+  body: ScanRequestBody,
+): Promise<{ ok: true; data: PassportResponse } | { ok: false; error: string }> {
+  const res = await apiFetch('/api/v1/scans/gitleaks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const err = await parseJSON<{ error?: string }>(res).catch(() => ({}) as { error?: string })
+    return { ok: false, error: err.error ?? `HTTP ${res.status}` }
+  }
+  const data = await parseJSON<PassportResponse>(res)
+  return { ok: true, data }
+}/** Запуск сценария Semgrep тем же пайплайном, что и остальные сканеры. */
 export async function runSemgrepScenario(
   body: ScanRequestBody,
 ): Promise<{ ok: true; data: PassportResponse } | { ok: false; error: string }> {
@@ -505,7 +521,8 @@ export async function fetchGroups(
 ): Promise<{ ok: true; data: GroupRow[] } | { ok: false; error: string }> {
   const res = await apiFetch(`/api/v1/groups?limit=${limit}`)
   if (!res.ok) {
-    return { ok: false, error: `HTTP ${res.status}` }
+    const err = await parseJSON<{ error?: string }>(res).catch(() => ({}) as { error?: string })
+    return { ok: false, error: err.error ?? `HTTP ${res.status}` }
   }
   const data = await parseJSON<GroupRow[]>(res)
   return { ok: true, data }
@@ -555,13 +572,31 @@ export async function fetchCatalogStatus(): Promise<
 export async function postSyncAsAdmin(
   path: CatalogSyncPostPath,
   query = '',
-): Promise<{ ok: true; status: number } | { ok: false; error: string }> {
+): Promise<
+  | { ok: true; status: number; hint?: string }
+  | { ok: false; error: string; status: number }
+> {
   const res = await adminApiFetch(path + query, { method: 'POST' })
+  const text = await res.text()
   if (!res.ok) {
-    const err = await parseJSON<{ error?: string }>(res).catch(() => ({}) as { error?: string })
-    return { ok: false, error: err.error ?? `HTTP ${res.status}` }
+    let msg = `HTTP ${res.status}`
+    try {
+      const j = JSON.parse(text) as { error?: string }
+      if (typeof j.error === 'string' && j.error.trim()) msg = j.error.trim()
+    } catch {
+      const trimmed = text.trim()
+      if (trimmed) msg = trimmed.slice(0, 240)
+    }
+    return { ok: false, error: msg, status: res.status }
   }
-  return { ok: true, status: res.status }
+  let hint: string | undefined
+  try {
+    const j = JSON.parse(text) as { hint?: string }
+    if (typeof j.hint === 'string' && j.hint.trim()) hint = j.hint.trim()
+  } catch {
+    /* ответ может быть телом SyncResult — без поля hint */
+  }
+  return { ok: true, status: res.status, hint }
 }
 
 export async function fetchSyncRunsAsAdmin(
@@ -586,10 +621,46 @@ export async function fetchCatalogStatusAsAdmin(): Promise<
   return { ok: true, data }
 }
 
+/** Параметры GET /api/v1/report/vulnerabilities для фильтрации (подстрока, без учёта регистра; run_channel — ci | manual).
+ *  Порядок: сначала инструмент и источник — основные поля для сужения отчёта.
+ */
+export const VULNERABILITY_REPORT_FILTER_KEYS = [
+  'scanner_name',
+  'catalog_source',
+  'group_key',
+  'group_id',
+  'vulnerability_id',
+  'cve',
+  'cwe',
+  'bdu_id',
+  'severity',
+  'run_channel',
+  'asset_path',
+  'version',
+  'run_at_from',
+  'run_at_to',
+] as const
+
+export type VulnerabilityReportFilters = Partial<
+  Record<(typeof VULNERABILITY_REPORT_FILTER_KEYS)[number], string>
+>
+
 export async function fetchVulnerabilityReport(
   limit = 300,
+  consoleProductId?: number | null,
+  filters?: VulnerabilityReportFilters,
 ): Promise<{ ok: true; data: VulnerabilityReportRow[] } | { ok: false; error: string }> {
-  const res = await apiFetch(`/api/v1/report/vulnerabilities?limit=${limit}`)
+  const qp = new URLSearchParams({ limit: String(limit) })
+  if (consoleProductId != null && Number.isFinite(consoleProductId) && consoleProductId > 0) {
+    qp.set('console_product_id', String(consoleProductId))
+  }
+  if (filters) {
+    for (const k of VULNERABILITY_REPORT_FILTER_KEYS) {
+      const v = filters[k]?.trim()
+      if (v) qp.set(k, v)
+    }
+  }
+  const res = await apiFetch(`/api/v1/report/vulnerabilities?${qp.toString()}`)
   if (!res.ok) {
     const err = await parseJSON<{ error?: string }>(res).catch(() => ({}) as { error?: string })
     return { ok: false, error: err.error ?? `HTTP ${res.status}` }

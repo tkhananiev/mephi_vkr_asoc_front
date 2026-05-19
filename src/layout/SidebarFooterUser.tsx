@@ -31,7 +31,7 @@ export function SidebarFooterUser() {
       </div>
       <button
         type="button"
-        className="btn btn-ghost sidebar-logout sidebar-footer-user-logout"
+        className="btn btn-primary sidebar-logout sidebar-footer-user-logout"
         onClick={() => {
           logout()
           markLoginFormWipe()

@@ -246,8 +246,8 @@ export function AdminUsers() {
   }
 
   return (
-    <PageFrame brand="admin" eyebrow="Администрирование" title="Пользователи">
-      <div style={{ maxWidth: 1180, width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
+    <PageFrame eyebrow="Администрирование" title="Пользователи">
+      <div style={{ maxWidth: 1440, width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
         <section className="card panel-elevated" style={{ padding: '1rem 1.25rem', marginBottom: '1.25rem' }}>
           <h2 style={{ margin: '0 0 1rem', fontSize: '1rem' }}>Новый пользователь</h2>
           <form
@@ -491,7 +491,7 @@ export function AdminUsers() {
             }
           }}
         >
-          <div className="card panel-elevated" style={{ padding: '1rem 1.25rem', maxWidth: 480, width: '100%' }} onMouseDown={(e) => e.stopPropagation()}>
+          <div className="card panel-elevated" style={{ padding: '1rem 1.25rem', maxWidth: 560, width: '100%' }} onMouseDown={(e) => e.stopPropagation()}>
             <h3 id="demote-title" style={{ margin: '0 0 0.65rem', fontSize: '1rem' }}>
               Перевести администратора в пользователи консоли
             </h3>
