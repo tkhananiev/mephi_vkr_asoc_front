@@ -53,8 +53,7 @@ export function AdminDashboard() {
   const [disabledN, setDisabledN] = useState(0)
   const [catalog, setCatalog] = useState<CatalogStatusResponse | null>(null)
   const [runs, setRuns] = useState<SyncRunRow[] | null>(null)
-  /** По умолчанию только последние сутки по started_at — не раздуваем экран ниже блока синка. */
-  const [runsWindow, setRunsWindow] = useState<'24h' | 'all'>('24h')
+const [runsWindow, setRunsWindow] = useState<'24h' | 'all'>('24h')
   const [runsPage, setRunsPage] = useState(0)
   const [health, setHealth] = useState<Record<string, HealthStatus>>({})
   const [err, setErr] = useState<string | null>(null)

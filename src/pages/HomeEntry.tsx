@@ -13,8 +13,6 @@ function redirectIfAuthenticated() {
   }
   return null
 }
-
-/** Корень сайта: маркетинговый лендинг или редирект при уже активной сессии. */
 export function HomeEntry() {
   const { token } = useAuth()
   const userRaw = token ?? (typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null)
@@ -28,8 +26,6 @@ export function HomeEntry() {
   }
   return <MarketingLanding />
 }
-
-/** Совместимость: открывает модальную форму входа на главной. */
 export function LoginEntry() {
   const loc = useLocation()
 
@@ -45,8 +41,6 @@ export function LoginEntry() {
   }
   return <Navigate to={{ pathname: '/', search: '?auth=login' }} replace state={loc.state} />
 }
-
-/** Совместимость: открывает модальную регистрацию на главной. */
 export function RegisterEntry() {
   const loc = useLocation()
   const { token } = useAuth()

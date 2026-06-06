@@ -106,9 +106,7 @@ export function AdminHealth() {
     }
     setLogs((prev) => ({ ...prev, [serviceId]: r.text }))
   }, [])
-
-  /** Из баннера: прокрутить к карточке и запросить тот же эндпойнт логов. */
-  const scrollToServiceAndFetchLogs = useCallback((serviceId: string) => {
+const scrollToServiceAndFetchLogs = useCallback((serviceId: string) => {
     document.getElementById(`health-service-${serviceId}`)?.scrollIntoView({
       behavior: 'smooth',
       block: 'center',

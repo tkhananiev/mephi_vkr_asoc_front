@@ -85,8 +85,6 @@ function builtinReadOnlyCell(text: string, mono = false): ReactNode {
     </span>
   )
 }
-
-/** Подтягиваем только hostname из legacy `network_host`, если три поля не заданы. */
 function hydrateNetwork(it: IntegrationCatalogApiItem): IntegrationCatalogApiItem {
   if ((it.network_hostname ?? '').trim() || (it.network_ip ?? '').trim() || (it.network_port ?? '').trim()) return it
   const raw = it.network_host?.trim()
@@ -215,8 +213,7 @@ async function persistAdditional(rows: AdditionalRow[], builtinIds: Set<string>)
 export function AdminScannerCatalog() {
   const nav = useNavigate()
   const [builtinIds, setBuiltinIds] = useState<Set<string>>(new Set())
-  /** Встроенные сканеры платформы (Semgrep, Gitleaks…) — из образа api-service, только для просмотра. */
-  const [builtinCatalog, setBuiltinCatalog] = useState<IntegrationCatalogApiItem[]>([])
+const [builtinCatalog, setBuiltinCatalog] = useState<IntegrationCatalogApiItem[]>([])
   const [additional, setAdditional] = useState<AdditionalRow[]>([])
   const [err, setErr] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)

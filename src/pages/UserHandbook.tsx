@@ -1,6 +1,4 @@
 import { PageFrame } from '../layout/PageFrame'
-
-/** Заготовка раздела; позже здесь будет полноценное руководство. */
 export function UserHandbook() {
   return (
     <PageFrame title="Руководство пользователя">

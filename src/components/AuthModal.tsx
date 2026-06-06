@@ -2,8 +2,6 @@ import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { LoginForm } from '../pages/Login'
 import { RegisterForm } from '../pages/Register'
-
-/** Оверлей с формой входа или регистрации (?auth=login | ?auth=register). */
 export function AuthModal() {
   const [params] = useSearchParams()
   const navigate = useNavigate()

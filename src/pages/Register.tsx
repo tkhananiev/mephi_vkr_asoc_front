@@ -1,8 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { requestRegistrationCode, verifyRegistrationCode } from '../api/client'
-
-/** Форма регистрации (модальное окно на главной). */
 export function RegisterForm() {
   const nav = useNavigate()
   const [firstName, setFirstName] = useState('')

@@ -1,4 +1,3 @@
-/** Минималистичные SVG-иконки навигации (fill=currentColor) */
 
 export function IconDashboard({ className }: { className?: string }) {
   return (

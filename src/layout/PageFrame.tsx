@@ -10,10 +10,8 @@ export function PageFrame({
 }: {
   title?: string
   lead?: string
-  /** Короткий ярлык над заголовком страницы */
-  eyebrow?: string
-  /** Блок справа от заголовка (например основная кнопка на странице). */
-  titleAside?: ReactNode
+eyebrow?: string
+titleAside?: ReactNode
   children: ReactNode
 }) {
   const topbarTrailing = useTopbarTrailing()

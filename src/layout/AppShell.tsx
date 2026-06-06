@@ -11,8 +11,7 @@ import { SidebarFooterUser } from './SidebarFooterUser'
 
 export function AppShell() {
   const loc = useLocation()
-  /** SAST/отчёт открываются с карточки продукта — подсвечиваем блок «Продукты» и на этих маршрутах. */
-  const productsSubgroupActive =
+const productsSubgroupActive =
     loc.pathname.startsWith('/app/products') ||
     loc.pathname.startsWith('/app/scan') ||
     loc.pathname.startsWith('/app/report')

@@ -526,8 +526,6 @@ export function ScanRun({ scannerId }: ScanRunProps) {
     </PageFrame>
   )
 }
-
-/** Маршрут `/app/scan/:scannerId` — id из каталога интеграций. */
 export function ScanRunRoute() {
   const { scannerId } = useParams()
   const raw = scannerId ? decodeURIComponent(scannerId) : ''

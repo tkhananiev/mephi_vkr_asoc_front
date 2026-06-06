@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { ADMIN_TOKEN_KEY } from '../auth/adminToken'
 import { markLoginFormWipe } from '../auth/loginFormWipe'
 import { jwtPayloadProfile } from '../auth/jwtPayload'
-
-/** В админ-консоли в JWT поле «email» фактически содержит логин администратора (`asoc-admin`). */
 export function SidebarFooterAdmin() {
   const navigate = useNavigate()
 

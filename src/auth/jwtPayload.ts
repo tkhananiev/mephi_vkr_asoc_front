@@ -1,4 +1,4 @@
-/** Декодирует `role` из JWT без проверки подписи — только для маршрутизации в SPA. */
+
 export function jwtPayloadRole(token: string): string | null {
   try {
     const parts = token.split('.')
@@ -13,8 +13,6 @@ export function jwtPayloadRole(token: string): string | null {
     return null
   }
 }
-
-/** Unix time (seconds), из claim `exp`, если есть. */
 export function jwtPayloadExpiry(token: string): number | null {
   try {
     const parts = token.split('.')

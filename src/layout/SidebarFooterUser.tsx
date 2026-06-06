@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { markLoginFormWipe } from '../auth/loginFormWipe'
 import { jwtPayloadProfile } from '../auth/jwtPayload'
-
-/** Профиль пользователя консоли и выход — левый нижний блок сайдбара. */
 export function SidebarFooterUser() {
   const { token, logout } = useAuth()
   const navigate = useNavigate()

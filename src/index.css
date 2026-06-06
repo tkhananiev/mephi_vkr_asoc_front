@@ -1,4 +1,4 @@
-/* Светлая тема интерфейса: белый фон, основной синий #005BAB, акцент #00B5E2, Montserrat. */
+
 :root {
   --asoc-blue: #005bab;
   --asoc-blue-dark: #004a8f;
@@ -29,7 +29,7 @@
   --topbar-h: 56px;
   --shadow-panel: 0 1px 3px rgba(16, 42, 67, 0.06), 0 6px 24px rgba(16, 42, 67, 0.08);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  /* Лендинг: те же синие акценты, что и в консоли (без отдельной «фиолетовой» темы) */
+  
   --landing-bg-hero: linear-gradient(135deg, #f8fafc 0%, #e8f4fc 48%, #f0f9ff 100%);
   --landing-btn-shadow: rgba(0, 91, 171, 0.28);
 }
@@ -522,7 +522,7 @@ a:hover {
   min-width: 0;
   position: relative;
 }
-/* Декоративный символ платформы (орбиты + ядро) */
+
 .main-wrap::before {
   content: '';
   position: absolute;
@@ -588,7 +588,7 @@ a:hover {
 }
 
 .topbar-logout-btn {
-  /* Поверх синего topbar: без «серой таблетки» от .btn-ghost */
+  
   background: rgba(255, 255, 255, 0.16) !important;
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.55) !important;
@@ -997,7 +997,7 @@ a:hover {
   }
 }
 
-/* Горизонтальная лента шагов (скролл на узких экранах) */
+
 .flow-strip {
   display: flex;
   flex-wrap: nowrap;
@@ -1069,7 +1069,7 @@ a:hover {
   position: relative;
 }
 
-/* Ловушка для браузерного автозаполнения: заполняется вместо реальных полей после выхода. */
+
 .auth-field-honey {
   position: absolute;
   width: 1px;
@@ -1149,7 +1149,7 @@ label.field textarea:focus {
   background: var(--bg-elevated);
 }
 
-/* Акцент «отчёт» на карточке продукта — между яркими SAST и второстепенными действиями */
+
 a.btn-report-accent,
 .btn-report-accent {
   text-decoration: none;
@@ -1262,7 +1262,7 @@ textarea.code-preview::placeholder {
   margin-bottom: 1rem;
 }
 
-/* Индикатор «идёт долгая синхронизация» на админ-дашборде */
+
 .sync-progress-track {
   height: 8px;
   border-radius: 4px;
@@ -1665,7 +1665,7 @@ table.data tr:last-child td {
   }
 }
 
-/* Страницы входа / регистрации */
+
 .auth-shell {
   min-height: 100vh;
   display: flex;
@@ -1924,7 +1924,7 @@ table.data tr:last-child td {
   width: 100%;
 }
 
-/* ——— Маркетинговый лендинг (главная до входа) ——— */
+
 
 .landing-page {
   width: 100%;
@@ -2114,8 +2114,6 @@ table.data tr:last-child td {
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
   background-repeat: no-repeat;
   background-position: center;
-  /* Не задавать background здесь: модификаторы включают два слоя (SVG поверх градиента).
-     Если оставить только url(SVG), белые линии рисуются на прозрачном фоне и «пропадают» на белой карте. */
   background-image: linear-gradient(
     145deg,
     var(--asoc-blue) 0%,
@@ -2137,7 +2135,7 @@ table.data tr:last-child td {
   background-size: 22px 22px, 100% 100%;
 }
 .landing-card-icon--scan {
-  /* Лупа и молния (сканеры / быстрый поиск проблем) */
+  
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9.5' cy='9.5' r='5' fill='none' stroke='white' stroke-width='1.85'/%3E%3Cpath stroke='white' stroke-width='1.85' stroke-linecap='round' d='M13.25 13.35L21 21'/%3E%3Cpath fill='white' d='M16.85 7.95 15.2 7.4l-.55 1 1 .25-.92.76.82.92 1-.95-.73-.94.93-.74z'/%3E%3C/svg%3E"),
     linear-gradient(145deg, var(--asoc-blue) 0%, var(--asoc-blue-dark) 45%, var(--asoc-cyan) 100%);
@@ -2212,7 +2210,7 @@ table.data tr:last-child td {
   overflow: hidden;
 }
 
-/* Сравнение ASOC vs DefectDojo: CSS Grid (не <table>) — одинаковые колонки во всех строках */
+
 .landing-compare-matrix {
   width: 100%;
   min-width: 520px;
@@ -2334,7 +2332,7 @@ table.data tr:last-child td {
 .landing-compare-table--marketing .landing-compare-brands-row .landing-compare-th-first {
   background: #f3f4f6;
 }
-/* Safari: flex внутри <th> ломает ширины колонок — центрируем блоком */
+
 .landing-compare-logo-slot {
   display: block;
   min-height: 48px;
@@ -2374,7 +2372,7 @@ table.data tr:last-child td {
   gap: 0.4rem;
   line-height: 1.35;
 }
-/* Safari: block-level flex в ячейке таблицы — стабильнее inline-flex в <td> */
+
 .landing-compare-table--marketing .landing-compare-cell {
   display: flex;
   align-items: center;
@@ -2566,7 +2564,7 @@ table.data tr:last-child td {
   text-decoration: underline;
 }
 
-/* Кебаб-меню в таблице пользователей (админка) */
+
 .admin-users-menu {
   position: relative;
   display: inline-flex;

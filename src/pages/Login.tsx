@@ -4,8 +4,6 @@ import { login } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { ADMIN_TOKEN_KEY } from '../auth/adminToken'
 import { consumeLoginFormWipe } from '../auth/loginFormWipe'
-
-/** Форма входа (модалка на главной). Поля всегда пустые при открытии; после выхода/сброса state не сохраняет e-mail регистрации. */
 export function LoginForm() {
   const nav = useNavigate()
   const loc = useLocation()

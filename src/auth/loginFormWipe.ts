@@ -1,11 +1,10 @@
-/** Помечаем: при следующей отрисовке формы входа нужно очистить поля (обход автозаполнения и ограничений history state). */
+
 export const ASOC_LOGIN_FORM_WIPE_KEY = 'asoc_login_form_wipe_v1'
 
 export function markLoginFormWipe() {
   try {
     sessionStorage.setItem(ASOC_LOGIN_FORM_WIPE_KEY, String(Date.now()))
   } catch {
-    //
   }
 }
 

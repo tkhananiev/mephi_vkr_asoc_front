@@ -2,8 +2,6 @@ import { Link } from 'react-router-dom'
 import { BrandLogo } from '../components/BrandLogo'
 import { AuthModal } from '../components/AuthModal'
 import { AuthShell } from '../components/AuthShell'
-
-/** Крупная эмблема «мирного атома» — тот же SVG, что в консоли (`BrandLogo`). */
 function LandingHeroVisual() {
   return (
     <div className="landing-hero-visual" aria-hidden>

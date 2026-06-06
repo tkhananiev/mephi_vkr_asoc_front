@@ -20,8 +20,6 @@ function elapsedRunning(startedAt?: string): string {
   const s = sec % 60
   return `${m} мин ${s} с`
 }
-
-/** Прогоны со статусом running: reference-data дописывает items_* во время долгих импортов; NVD теперь тоже обновляет прогресс по страницам. */
 export function RunningSyncLivePanel({
   rows,
   pollSeconds,
@@ -29,8 +27,7 @@ export function RunningSyncLivePanel({
 }: {
   rows: SyncRunRow[]
   pollSeconds?: number
-  /** Сервер уже сообщил sync_in_progress, но строка прогона ещё не попала в список — показываем полоску и подсказку. */
-  waitingForRows?: boolean
+waitingForRows?: boolean
 }) {
   const stripLive = pollSeconds != null || waitingForRows
   if (!stripLive && rows.length === 0) return null

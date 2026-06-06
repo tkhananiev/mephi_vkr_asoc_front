@@ -1,6 +1,4 @@
 import { PageFrame } from '../layout/PageFrame'
-
-/** Заготовка раздела; позже здесь будет полноценное руководство. */
 export function AdminHandbook() {
   return (
     <PageFrame eyebrow="Справка" title="Руководство администратора">

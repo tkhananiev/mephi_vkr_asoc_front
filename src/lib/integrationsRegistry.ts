@@ -1,10 +1,7 @@
-/** Каталог сканеров для GUI (из ответа бэкенда; при недоступности — `INTEGRATIONS_CATALOG`). */
 
 import type { IntegrationCatalogApiItem, IntegrationsListResponse } from '../api/types'
 
 export type IntegrationKind = 'SAST' | 'SCA' | 'DAST' | 'MAST' | 'Image Scan'
-
-/** Вход сканера с точки зрения оркестрации (без секретов). */
 export type IntegrationInputKind =
   | 'filesystem'
   | 'lockfile'
@@ -12,11 +9,7 @@ export type IntegrationInputKind =
   | 'oci_image'
   | 'http_target'
   | 'manifest_only'
-
-/** Что должно быть у продукта до запуска (с сервера). */
 export type IntegrationRequiredContext = 'scm' | 'base_url'
-
-/** Подписи поля «Вход» на странице «Инструменты». */
 export function inputKindLabel(kind: IntegrationInputKind | undefined): string {
   switch (kind) {
     case 'filesystem':
@@ -34,8 +27,6 @@ export function inputKindLabel(kind: IntegrationInputKind | undefined): string {
       return '—'
   }
 }
-
-/** Подписи обязательного контекста продукта. */
 export function requiredContextLabel(ctx: IntegrationRequiredContext): string {
   switch (ctx) {
     case 'scm':
@@ -46,25 +37,20 @@ export function requiredContextLabel(ctx: IntegrationRequiredContext): string {
       return ctx
   }
 }
-
-/** Подключение с точки зрения консоли. */
 export type IntegrationRuntime =
   | { phase: 'ready'; launchAppPath?: string; apiScanPath?: string }
   | { phase: 'planned'; note?: string }
 
 export type IntegrationCatalogEntry = {
-  /** Стабильный ключ для кода и API: semgrep | trivy-sca | zap-dast … */
-  id: string
+id: string
   kind: IntegrationKind
   title: string
   summary: string
-  /** Имя для processing / тела скана (`scanner_name`). */
-  scannerName?: string
+scannerName?: string
   inputKind?: IntegrationInputKind
   requiredContext?: IntegrationRequiredContext[]
   capabilities?: string[]
-  /** С сервера: политика/тенант выключили инструмент. */
-  enabled?: boolean
+enabled?: boolean
   runtime: IntegrationRuntime
 }
 
@@ -122,13 +108,9 @@ function mapApiItem(row: IntegrationCatalogApiItem): IntegrationCatalogEntry | n
     },
   }
 }
-
-/** Преобразует ответ API в записи таблицы «Инструменты». */
 export function integrationsFromApiResponse(resp: IntegrationsListResponse): IntegrationCatalogEntry[] {
   return resp.integrations.map(mapApiItem).filter((x): x is IntegrationCatalogEntry => x !== null)
 }
-
-/** Приоритет кнопок скана на карточках продуктов (остальные — по названию). */
 export function compareRunnableScanOrder(a: IntegrationCatalogEntry, b: IntegrationCatalogEntry): number {
   const pri = (id: string) =>
     id === 'semgrep' ? 0 : id === 'gitleaks' ? 1 : id === 'trivy-sca' ? 2 : id === 'zap-dast' ? 3 : 4
@@ -136,8 +118,6 @@ export function compareRunnableScanOrder(a: IntegrationCatalogEntry, b: Integrat
   if (d !== 0) return d
   return a.title.localeCompare(b.title, 'ru')
 }
-
-/** Инструменты, для которых в GUI есть ссылка «Открыть скан» (`launchAppPath`). */
 export function listRunnableIntegrationScans(entries: IntegrationCatalogEntry[]): IntegrationCatalogEntry[] {
   const out = entries.filter((e) => {
     if (e.runtime.phase !== 'ready') return false

@@ -1,4 +1,3 @@
-/** Продукты консоли хранятся в PostgreSQL; в браузере — только id активного продукта и кэш списка на время сессии вкладки. */
 
 import { apiFetch } from '../api/client'
 import { TOKEN_KEY } from '../auth/token'
@@ -79,8 +78,6 @@ async function readErrorHint(res: Response): Promise<string | undefined> {
     return undefined
   }
 }
-
-/** Сбросить кэш (например после выхода из аккаунта). */
 export function invalidateProductsCache(): void {
   cache = null
   inflight = null
@@ -107,8 +104,6 @@ function normalizeActiveAfterLoad(): void {
     localStorage.removeItem(ACTIVE_KEY)
   }
 }
-
-/** Загрузить список с сервера (с дедупликацией параллельных вызовов). */
 export async function ensureProductsLoaded(): Promise<StoredProduct[]> {
   if (typeof window === 'undefined') return []
   if (!localStorage.getItem(TOKEN_KEY)) {
@@ -133,8 +128,6 @@ export async function listProducts(): Promise<StoredProduct[]> {
   const rows = await ensureProductsLoaded()
   return [...rows].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
-
-/** Ветки: непустые, по порядку; дубликаты удаляются. */
 export function dedupeBranches(branches: string[]): string[] {
   const seen = new Set<string>()
   const out: string[] = []

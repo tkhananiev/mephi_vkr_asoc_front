@@ -1,7 +1,5 @@
 import { Navigate } from 'react-router-dom'
 import { markLoginFormWipe } from '../auth/loginFormWipe'
-
-/** Редирект на главную с открытием формы входа (?auth=login) после выхода / потери доступа. Сохраняем только freshLogin и from — без вторичного состояния (напр. после регистрации). */
 export function NavigateLoginFresh({ state }: { state?: Record<string, unknown> | null }) {
   markLoginFormWipe()
 

@@ -20,8 +20,6 @@ async function parseJSON<T>(res: Response): Promise<T> {
   if (!text) return {} as T
   return JSON.parse(text) as T
 }
-
-/** Все запросы к /api — с Bearer JWT пользователя, если залогинен. */
 export async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers)
   const t = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null
@@ -35,8 +33,6 @@ export async function apiFetch(input: RequestInfo | URL, init: RequestInit = {})
   }
   return fetch(input, { ...init, headers })
 }
-
-/** Вход в консоль: один запрос к auth-service — сначала учётная запись администратора, иначе пользователь контура. */
 export async function login(
   identifier: string,
   password: string,
@@ -116,8 +112,6 @@ async function adminFetch(path: string, init: RequestInit = {}): Promise<Respons
   if (t && !headers.has('Authorization')) headers.set('Authorization', `Bearer ${t}`)
   return fetch(path, { ...init, headers })
 }
-
-/** Запросы к /api с JWT администратора (api-service принимает роль admin). */
 export async function adminApiFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers)
   const t = typeof window !== 'undefined' ? localStorage.getItem(ADMIN_TOKEN_KEY) : null
@@ -395,8 +389,6 @@ export async function adminDemoteAdminToUser(
   }
   return { ok: true }
 }
-
-/** Логи процесса сервиса (Docker CLI или K8s — см. `deploy/k8s/README.md` в backend). */
 export async function adminDockerLogs(
   serviceId: string,
   tail = 200,
@@ -461,8 +453,6 @@ export async function adminPutIntegrationOverlay(
   }
   return { ok: true }
 }
-
-/** Каталог интеграций; при ошибке — `null` (останется локальный `INTEGRATIONS_CATALOG`). */
 export async function fetchIntegrationsCatalog(): Promise<IntegrationCatalogEntry[] | null> {
   try {
     const res = await apiFetch('/api/v1/integrations')
@@ -476,8 +466,6 @@ export async function fetchIntegrationsCatalog(): Promise<IntegrationCatalogEntr
 }
 
 export type ScanScenarioResult = { ok: true; data: PassportResponse } | { ok: false; error: string }
-
-/** Запуск по пути из каталога (`api_scan_path`); иначе unified POST `/api/v1/scans`. */
 export async function runScanForApiPath(
   apiScanPath: string | undefined,
   scannerId: string,
@@ -511,8 +499,6 @@ export async function runScanForApiPath(
       return runUnifiedScanScenario(scannerId, body)
   }
 }
-
-/** Запуск сценария сканирования (unified SCAN) с нужным сканером. */
 export async function runUnifiedScanScenario(
   scannerId: string,
   body: ScanRequestBody,
@@ -530,8 +516,6 @@ export async function runUnifiedScanScenario(
   const data = await parseJSON<PassportResponse>(res)
   return { ok: true, data }
 }
-
-/** Запуск Gitleaks тем же пайплайном (POST `/api/v1/scans/gitleaks`, без `scanner_id`). */
 export async function runGitleaksScenario(
   _scannerId: string,
   body: ScanRequestBody,
@@ -582,8 +566,6 @@ export async function runDastScenario(
   const data = await parseJSON<PassportResponse>(res)
   return { ok: true, data }
 }
-
-/** Запуск сценария Semgrep тем же пайплайном, что и остальные сканеры. */
 export async function runSemgrepScenario(
   body: ScanRequestBody,
 ): Promise<{ ok: true; data: PassportResponse } | { ok: false; error: string }> {
@@ -635,8 +617,6 @@ export async function createGroupJiraTicket(
   const data = await parseJSON<TicketRow>(res)
   return { ok: true, data }
 }
-
-/** POST-триггеры синка справочников (reference-data-service). */
 export type CatalogSyncPostPath =
   | '/api/v1/sync/bdu'
   | '/api/v1/sync/bdu/bulk'
@@ -728,10 +708,6 @@ export async function fetchCatalogStatusAsAdmin(): Promise<
   const data = await parseJSON<CatalogStatusResponse>(res)
   return { ok: true, data }
 }
-
-/** Параметры GET /api/v1/report/vulnerabilities для фильтрации (подстрока, без учёта регистра; run_channel — ci | manual).
- *  Порядок: сначала инструмент и источник — основные поля для сужения отчёта.
- */
 export const VULNERABILITY_REPORT_FILTER_KEYS = [
   'scanner_name',
   'catalog_source',

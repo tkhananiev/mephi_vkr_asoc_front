@@ -13,11 +13,6 @@ function subscribeActivity(cb: () => void) {
   ev.forEach((e) => window.addEventListener(e, cb, { passive: true }))
   return () => ev.forEach((e) => window.removeEventListener(e, cb))
 }
-
-/**
- * 15 минут бездействия — выход из текущей консоли (admin или user).
- * Истечение JWT (`exp`) — выход после проверки (каждые 30 с и при входе на маршрут).
- */
 export function SessionLifecycle() {
   const loc = useLocation()
   const nav = useNavigate()

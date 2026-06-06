@@ -1,8 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { markLoginFormWipe } from '../auth/loginFormWipe'
-
-/** Кнопка в правой части topbar консоли пользователя. */
 export function AppLogoutButton() {
   const { logout } = useAuth()
   const navigate = useNavigate()

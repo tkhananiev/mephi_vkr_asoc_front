@@ -1,4 +1,4 @@
-/** Элемент каталога интеграций в ответе бэкенда (поля совпадают с JSON как у сервера). */
+
 export interface IntegrationCatalogApiItem {
   id: string
   kind: string
@@ -13,22 +13,14 @@ export interface IntegrationCatalogApiItem {
   console_path?: string
   capabilities?: string[]
   note?: string
-  /** Сводка сети или устаревшее поле; при сохранении может вычисляться из hostname/IP/порта. */
-  network_host?: string
-  /** Сетевое имя хоста (справочно). */
-  network_hostname?: string
-  /** IP-адрес хоста (справочно). */
-  network_ip?: string
-  /** Порт сервиса (справочно). */
-  network_port?: string
-  /** Полный URL при вызове внешнего или встроенного раннер-сканера. */
-  scanner_invoke_url?: string
-  /** Шаблон shell для generic-scan-runner: плейсхолдеры {target_path}, {git_repository_url}, … */
-  runner_command?: string
-  /** Подсказка админу: CLI, поля POST и т.д. */
-  invoke_hint?: string
-  /** Шаблон или пример JSON-тела POST для вызова сервиса. */
-  invoke_payload_template?: string
+network_host?: string
+network_hostname?: string
+network_ip?: string
+network_port?: string
+scanner_invoke_url?: string
+runner_command?: string
+invoke_hint?: string
+invoke_payload_template?: string
 }
 
 export interface IntegrationsListResponse {
@@ -47,11 +39,8 @@ export interface ScanRequestBody {
   git_repository_url?: string
   git_repository_ref?: string
   semgrep_config?: string
-  /** Привязка прогона к выбранному продукту в консоли. */
-  console_product_id?: number
+console_product_id?: number
 }
-
-/** Тело запроса на запуск сканирования (`scanner_id` — какой исполнитель; остальное как у семgrep-сценария). */
 export type UnifiedScanRequestBody = ScanRequestBody & {
   scanner_id: string
   options?: Record<string, unknown>
@@ -112,8 +101,6 @@ export interface CatalogStatusResponse {
   nvd_full_sync_completed: boolean
   sync_in_progress: boolean
 }
-
-/** Строка отчёта: одна уязвимость; в UI группируется по group_id */
 export interface VulnerabilityReportRow {
   group_id: number
   group_key: string
@@ -126,6 +113,5 @@ export interface VulnerabilityReportRow {
   severity: string
   run_at?: string
   catalog_source?: string
-  /** Канал прогона: консоль или CI (см. processing_runs.channel). */
-  run_channel?: 'manual' | 'ci'
+run_channel?: 'manual' | 'ci'
 }
