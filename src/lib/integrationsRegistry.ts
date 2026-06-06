@@ -5,7 +5,47 @@ import type { IntegrationCatalogApiItem, IntegrationsListResponse } from '../api
 export type IntegrationKind = 'SAST' | 'SCA' | 'DAST' | 'MAST' | 'Image Scan'
 
 /** Вход сканера с точки зрения оркестрации (без секретов). */
-export type IntegrationInputKind = 'filesystem' | 'lockfile' | 'http'
+export type IntegrationInputKind =
+  | 'filesystem'
+  | 'lockfile'
+  | 'http'
+  | 'oci_image'
+  | 'http_target'
+  | 'manifest_only'
+
+/** Что должно быть у продукта до запуска (с сервера). */
+export type IntegrationRequiredContext = 'scm' | 'base_url'
+
+/** Подписи поля «Вход» на странице «Инструменты». */
+export function inputKindLabel(kind: IntegrationInputKind | undefined): string {
+  switch (kind) {
+    case 'filesystem':
+      return 'файловая система'
+    case 'lockfile':
+      return 'манифест / lockfile'
+    case 'http':
+    case 'http_target':
+      return 'HTTP-цель'
+    case 'oci_image':
+      return 'OCI-образ'
+    case 'manifest_only':
+      return 'только манифест'
+    default:
+      return '—'
+  }
+}
+
+/** Подписи обязательного контекста продукта. */
+export function requiredContextLabel(ctx: IntegrationRequiredContext): string {
+  switch (ctx) {
+    case 'scm':
+      return 'SCM (URL репозитория)'
+    case 'base_url':
+      return 'базовый URL приложения'
+    default:
+      return ctx
+  }
+}
 
 /** Подключение с точки зрения консоли. */
 export type IntegrationRuntime =
@@ -21,6 +61,7 @@ export type IntegrationCatalogEntry = {
   /** Имя для processing / тела скана (`scanner_name`). */
   scannerName?: string
   inputKind?: IntegrationInputKind
+  requiredContext?: IntegrationRequiredContext[]
   capabilities?: string[]
   /** С сервера: политика/тенант выключили инструмент. */
   enabled?: boolean
@@ -32,7 +73,18 @@ function isIntegrationKind(k: string): k is IntegrationKind {
 }
 
 function isInputKind(k: string): k is IntegrationInputKind {
-  return k === 'filesystem' || k === 'lockfile' || k === 'http'
+  return (
+    k === 'filesystem' ||
+    k === 'lockfile' ||
+    k === 'http' ||
+    k === 'oci_image' ||
+    k === 'http_target' ||
+    k === 'manifest_only'
+  )
+}
+
+function isRequiredContext(k: string): k is IntegrationRequiredContext {
+  return k === 'scm' || k === 'base_url'
 }
 
 function mapApiItem(row: IntegrationCatalogApiItem): IntegrationCatalogEntry | null {
@@ -49,6 +101,9 @@ function mapApiItem(row: IntegrationCatalogApiItem): IntegrationCatalogEntry | n
   }
   if (row.input_kind && isInputKind(row.input_kind)) {
     base.inputKind = row.input_kind
+  }
+  if (row.required_context?.length) {
+    base.requiredContext = row.required_context.filter(isRequiredContext)
   }
 
   if (row.phase === 'planned') {
@@ -75,7 +130,8 @@ export function integrationsFromApiResponse(resp: IntegrationsListResponse): Int
 
 /** Приоритет кнопок скана на карточках продуктов (остальные — по названию). */
 export function compareRunnableScanOrder(a: IntegrationCatalogEntry, b: IntegrationCatalogEntry): number {
-  const pri = (id: string) => (id === 'semgrep' ? 0 : id === 'gitleaks' ? 1 : 2)
+  const pri = (id: string) =>
+    id === 'semgrep' ? 0 : id === 'gitleaks' ? 1 : id === 'trivy-sca' ? 2 : id === 'zap-dast' ? 3 : 4
   const d = pri(a.id) - pri(b.id)
   if (d !== 0) return d
   return a.title.localeCompare(b.title, 'ru')
@@ -107,7 +163,8 @@ export const INTEGRATIONS_CATALOG: IntegrationCatalogEntry[] = [
     id: 'semgrep',
     kind: 'SAST',
     title: 'Semgrep',
-    summary: '',
+    summary: 'Статический анализ исходного кода (SAST) по правилам Semgrep.',
+    requiredContext: ['scm'],
     scannerName: 'semgrep',
     inputKind: 'filesystem',
     capabilities: ['sast', 'filesystem_target'],
@@ -124,6 +181,30 @@ export const INTEGRATIONS_CATALOG: IntegrationCatalogEntry[] = [
     capabilities: ['secrets', 'filesystem_target'],
     enabled: true,
     runtime: { phase: 'ready', launchAppPath: '/app/scan/gitleaks', apiScanPath: '/api/v1/scans/gitleaks' },
+  },
+  {
+    id: 'trivy-sca',
+    kind: 'SCA',
+    title: 'Trivy (SCA)',
+    summary: 'Анализ зависимостей и уязвимостей в lockfile и файловой системе репозитория.',
+    scannerName: 'trivy-sca',
+    inputKind: 'lockfile',
+    requiredContext: ['scm'],
+    capabilities: ['sca', 'lockfile_target', 'filesystem_target'],
+    enabled: true,
+    runtime: { phase: 'ready', launchAppPath: '/app/scan/trivy-sca', apiScanPath: '/api/v1/scans/sca' },
+  },
+  {
+    id: 'zap-dast',
+    kind: 'DAST',
+    title: 'ZAP (DAST)',
+    summary: 'Динамический анализ HTTP-цели через OWASP ZAP baseline (нормализованные находки для processing).',
+    scannerName: 'zap-dast',
+    inputKind: 'http_target',
+    requiredContext: ['base_url'],
+    capabilities: ['dast', 'http_target'],
+    enabled: true,
+    runtime: { phase: 'ready', launchAppPath: '/app/scan/zap-dast', apiScanPath: '/api/v1/scans/dast' },
   },
 ]
 

@@ -15,7 +15,26 @@
     />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <p id="asoc-boot-msg" style="margin: 0; padding: 2rem; font-family: system-ui, sans-serif; color: #333">
+        Загрузка…
+      </p>
+    </div>
+    <script>
+      ;(function () {
+        var t = window.setTimeout(function () {
+          var root = document.getElementById('root')
+          if (!root || !document.getElementById('asoc-boot-msg')) return
+          root.innerHTML =
+            '<p style="margin:0;padding:2rem;font-family:system-ui,sans-serif;color:#c62828;max-width:36rem;line-height:1.5">' +
+            'Не удалось загрузить приложение (устаревший кэш или сбой сети). ' +
+            'Обновите страницу: <strong>Ctrl+Shift+R</strong> (Mac: <strong>Cmd+Shift+R</strong>).</p>'
+        }, 12000)
+        window.addEventListener('error', function () {
+          window.clearTimeout(t)
+        })
+      })()
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

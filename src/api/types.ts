@@ -7,6 +7,7 @@ export interface IntegrationCatalogApiItem {
   phase: 'ready' | 'planned'
   enabled: boolean
   input_kind: string
+  required_context?: string[]
   scanner_name?: string
   api_scan_path?: string
   console_path?: string
@@ -42,6 +43,7 @@ export interface AdminIntegrationCatalogEntryDTO {
 export interface ScanRequestBody {
   scanner_name?: string
   target_path?: string
+  target_url?: string
   git_repository_url?: string
   git_repository_ref?: string
   semgrep_config?: string

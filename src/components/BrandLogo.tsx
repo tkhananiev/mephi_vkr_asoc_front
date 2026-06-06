@@ -1,9 +1,9 @@
 import { useId } from 'react'
 
-/** Логотип Atomic (градиент орбиты + ядро), см. также public/mephi-atom-watermark.svg */
+/** Логотип Atomic (градиент орбиты + ядро), см. также public/asoc-atom-watermark.svg */
 export function BrandLogo({ size = 36 }: { size?: number }) {
   const gid = useId().replace(/:/g, '')
-  const gradId = `mephi-atom-grad-${gid}`
+  const gradId = `asoc-atom-grad-${gid}`
   return (
     <svg width={size} height={size} viewBox="0 0 200 200" fill="none" aria-hidden>
       <defs>

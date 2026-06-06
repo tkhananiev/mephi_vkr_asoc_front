@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom'
 import { useIntegrationsCatalog } from '../context/IntegrationsCatalogContext'
-import type { IntegrationCatalogEntry, IntegrationInputKind } from '../lib/integrationsRegistry'
+import {
+  inputKindLabel,
+  requiredContextLabel,
+  type IntegrationCatalogEntry,
+} from '../lib/integrationsRegistry'
 import { PageFrame } from '../layout/PageFrame'
 
 function kindLabel(k: IntegrationCatalogEntry['kind']): string {
@@ -13,19 +17,6 @@ function kindLabel(k: IntegrationCatalogEntry['kind']): string {
       return 'DAST'
     default:
       return k
-  }
-}
-
-function inputKindLabel(kind: IntegrationInputKind | undefined): string {
-  switch (kind) {
-    case 'filesystem':
-      return 'файловая система'
-    case 'lockfile':
-      return 'манифест / lockfile'
-    case 'http':
-      return 'HTTP-цель'
-    default:
-      return '—'
   }
 }
 
@@ -67,7 +58,7 @@ function statusBadge(row: IntegrationCatalogEntry) {
         padding: '0.2rem 0.55rem',
         borderRadius: 999,
         background: 'rgba(0, 91, 171, 0.12)',
-        color: 'var(--mephi-blue-dark, #004a8f)',
+        color: 'var(--asoc-blue-dark, #004a8f)',
       }}
     >
       доступен
@@ -95,6 +86,7 @@ export function Integrations() {
               <tr>
                 <th>Тип</th>
                 <th>Вход</th>
+                <th>Контекст продукта</th>
                 <th>Имя в processing</th>
                 <th>Возможности</th>
                 <th>Инструмент</th>
@@ -109,6 +101,11 @@ export function Integrations() {
                   <td style={{ whiteSpace: 'nowrap', fontWeight: 600 }}>{kindLabel(row.kind)}</td>
                   <td style={{ whiteSpace: 'nowrap', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
                     {inputKindLabel(row.inputKind)}
+                  </td>
+                  <td style={{ fontSize: '0.82rem', color: 'var(--text-muted)', maxWidth: 180 }}>
+                    {row.requiredContext?.length
+                      ? row.requiredContext.map(requiredContextLabel).join('; ')
+                      : '—'}
                   </td>
                   <td style={{ fontSize: '0.82rem', fontFamily: 'var(--mono, ui-monospace)', wordBreak: 'break-all' }}>
                     {row.scannerName ?? row.id}

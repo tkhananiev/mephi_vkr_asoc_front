@@ -22,6 +22,8 @@ const services: ServiceProbe[] = [
   { id: 'jir', label: 'jira-integration-service', healthPath: '/health/jira', portHint: ':8083' },
   { id: 'sem', label: 'semgrep-service', healthPath: '/health/semgrep', portHint: ':8085' },
   { id: 'gls', label: 'gitleaks-service', healthPath: '/health/gitleaks', portHint: ':8086' },
+  { id: 'sca', label: 'trivy-sca-service', healthPath: '/health/trivy-sca', portHint: ':8088' },
+  { id: 'zap', label: 'zap-dast-service', healthPath: '/health/zap-dast', portHint: ':8089' },
 ]
 
 function Lamp({ status }: { status: HealthStatus }) {

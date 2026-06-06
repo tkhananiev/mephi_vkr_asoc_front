@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react'
 // Только для разработки на своём ПК: прокси на сервисы на 127.0.0.1. На стенде UI — https://atomic-asoc.ru (сборка + nginx в K8s, без Vite).
 export default defineConfig({
   plugins: [react()],
+  build: {
+    target: 'es2020',
+  },
   server: {
     port: 5173,
     // С другой машины в сети / по IP хоста открывай URL из строки «Network» в консоли Vite, не localhost.

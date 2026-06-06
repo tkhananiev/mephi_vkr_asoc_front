@@ -4,6 +4,7 @@ import type {
   AdminIntegrationCatalogEntryDTO,
   CatalogStatusResponse,
   GroupRow,
+  TicketRow,
   IntegrationsListResponse,
   IntegrationCatalogApiItem,
   PassportResponse,
@@ -395,7 +396,7 @@ export async function adminDemoteAdminToUser(
   return { ok: true }
 }
 
-/** Логи процесса сервиса (Kubernetes pods или Docker; см. ENVIRONMENT.md). */
+/** Логи процесса сервиса (Docker CLI или K8s — см. `deploy/k8s/README.md` в backend). */
 export async function adminDockerLogs(
   serviceId: string,
   tail = 200,
@@ -474,6 +475,43 @@ export async function fetchIntegrationsCatalog(): Promise<IntegrationCatalogEntr
   }
 }
 
+export type ScanScenarioResult = { ok: true; data: PassportResponse } | { ok: false; error: string }
+
+/** Запуск по пути из каталога (`api_scan_path`); иначе unified POST `/api/v1/scans`. */
+export async function runScanForApiPath(
+  apiScanPath: string | undefined,
+  scannerId: string,
+  body: ScanRequestBody,
+): Promise<ScanScenarioResult> {
+  const path = (apiScanPath ?? '').trim()
+  switch (path) {
+    case '/api/v1/scans/gitleaks':
+      return runGitleaksScenario(scannerId, body)
+    case '/api/v1/scans/sca':
+      return runScaScenario(scannerId, body)
+    case '/api/v1/scans/dast':
+      return runDastScenario(scannerId, body)
+    case '/api/v1/scans':
+    case '':
+      return runUnifiedScanScenario(scannerId, body)
+    default:
+      if (path.startsWith('/api/v1/scans')) {
+        const res = await apiFetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+        if (!res.ok) {
+          const err = await parseJSON<{ error?: string }>(res).catch(() => ({}) as { error?: string })
+          return { ok: false, error: err.error ?? `HTTP ${res.status}` }
+        }
+        const data = await parseJSON<PassportResponse>(res)
+        return { ok: true, data }
+      }
+      return runUnifiedScanScenario(scannerId, body)
+  }
+}
+
 /** Запуск сценария сканирования (unified SCAN) с нужным сканером. */
 export async function runUnifiedScanScenario(
   scannerId: string,
@@ -509,22 +547,92 @@ export async function runGitleaksScenario(
   }
   const data = await parseJSON<PassportResponse>(res)
   return { ok: true, data }
-}/** Запуск сценария Semgrep тем же пайплайном, что и остальные сканеры. */
+}
+
+export async function runScaScenario(
+  _scannerId: string,
+  body: ScanRequestBody,
+): Promise<{ ok: true; data: PassportResponse } | { ok: false; error: string }> {
+  const res = await apiFetch('/api/v1/scans/sca', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const err = await parseJSON<{ error?: string }>(res).catch(() => ({}) as { error?: string })
+    return { ok: false, error: err.error ?? `HTTP ${res.status}` }
+  }
+  const data = await parseJSON<PassportResponse>(res)
+  return { ok: true, data }
+}
+
+export async function runDastScenario(
+  _scannerId: string,
+  body: ScanRequestBody,
+): Promise<{ ok: true; data: PassportResponse } | { ok: false; error: string }> {
+  const res = await apiFetch('/api/v1/scans/dast', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const err = await parseJSON<{ error?: string }>(res).catch(() => ({}) as { error?: string })
+    return { ok: false, error: err.error ?? `HTTP ${res.status}` }
+  }
+  const data = await parseJSON<PassportResponse>(res)
+  return { ok: true, data }
+}
+
+/** Запуск сценария Semgrep тем же пайплайном, что и остальные сканеры. */
 export async function runSemgrepScenario(
   body: ScanRequestBody,
 ): Promise<{ ok: true; data: PassportResponse } | { ok: false; error: string }> {
   return runUnifiedScanScenario('semgrep', body)
 }
 
+export type GroupsListStatus = 'open' | 'false_positive' | 'risk_accepted' | 'all'
+
 export async function fetchGroups(
   limit = 50,
+  status: GroupsListStatus = 'open',
 ): Promise<{ ok: true; data: GroupRow[] } | { ok: false; error: string }> {
-  const res = await apiFetch(`/api/v1/groups?limit=${limit}`)
+  const res = await apiFetch(`/api/v1/groups?limit=${limit}&status=${encodeURIComponent(status)}`)
   if (!res.ok) {
     const err = await parseJSON<{ error?: string }>(res).catch(() => ({}) as { error?: string })
     return { ok: false, error: err.error ?? `HTTP ${res.status}` }
   }
   const data = await parseJSON<GroupRow[]>(res)
+  return { ok: true, data }
+}
+
+export type GroupClosureStatus = 'open' | 'false_positive' | 'risk_accepted'
+
+export async function patchGroupStatus(
+  groupId: number,
+  status: GroupClosureStatus,
+): Promise<{ ok: true; data: GroupRow } | { ok: false; error: string }> {
+  const res = await apiFetch(`/api/v1/groups/${groupId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  })
+  if (!res.ok) {
+    const err = await parseJSON<{ error?: string }>(res).catch(() => ({}) as { error?: string })
+    return { ok: false, error: err.error ?? `HTTP ${res.status}` }
+  }
+  const data = await parseJSON<GroupRow>(res)
+  return { ok: true, data }
+}
+
+export async function createGroupJiraTicket(
+  groupId: number,
+): Promise<{ ok: true; data: TicketRow } | { ok: false; error: string }> {
+  const res = await apiFetch(`/api/v1/groups/${groupId}/jira-ticket`, { method: 'POST' })
+  if (!res.ok) {
+    const err = await parseJSON<{ error?: string }>(res).catch(() => ({}) as { error?: string })
+    return { ok: false, error: err.error ?? `HTTP ${res.status}` }
+  }
+  const data = await parseJSON<TicketRow>(res)
   return { ok: true, data }
 }
 

@@ -15,7 +15,7 @@ function scmSummary(p: StoredProduct): string {
     const sub = p.repositorySubdirectory ? ` · ${p.repositorySubdirectory}` : ''
     return `${p.repositoryUrl}\nветки: ${br}${sub}`
   }
-  return `Демо-путь в образе: ${p.scanTargetPath}`
+  return `Встроенный каталог в образе: ${p.scanTargetPath}`
 }
 
 export function ProductsList() {
@@ -206,7 +206,11 @@ export function ProductsList() {
                     </button>
                   </div>
                 </div>
-                {!hasScm ? <p className="hint product-card-note">Без SCM сканирование использует демо-каталог платформы (см. поле выше).</p> : null}
+                {!hasScm ? (
+                  <p className="hint product-card-note">
+                    Без SCM сканирование использует встроенный каталог платформы (см. поле выше).
+                  </p>
+                ) : null}
               </article>
             )
           })}

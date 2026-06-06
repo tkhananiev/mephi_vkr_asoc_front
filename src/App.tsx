@@ -14,7 +14,7 @@ import { SastScanLayout } from './layout/SastScanLayout'
 import { ProductCreate } from './pages/ProductCreate'
 import { ProductEdit } from './pages/ProductEdit'
 import { ProductsList } from './pages/ProductsList'
-import { ScanRun, ScanRunRoute } from './pages/ScanRun'
+import { ScanRunRoute } from './pages/ScanRun'
 import { UserHandbook } from './pages/UserHandbook'
 import { VulnerabilityReport } from './pages/VulnerabilityReport'
 import { IntegrationsCatalogProvider } from './context/IntegrationsCatalogContext'
@@ -65,12 +65,12 @@ export default function App() {
             <Route path="projects" element={<Navigate to="/app/products" replace />} />
             <Route path="scan" element={<SastScanLayout />}>
               <Route index element={<Navigate to="semgrep" replace />} />
-              <Route path="semgrep" element={<ScanRun scannerId="semgrep" />} />
-              <Route path="gitleaks" element={<ScanRun scannerId="gitleaks" />} />
               <Route path=":scannerId" element={<ScanRunRoute />} />
             </Route>
             <Route path="report" element={<VulnerabilityReport />} />
-            <Route path="groups" element={<GroupsBoard />} />
+            <Route path="groups" element={<GroupsBoard view="open" />} />
+            <Route path="groups/false-positive" element={<GroupsBoard view="false_positive" />} />
+            <Route path="groups/risk-accepted" element={<GroupsBoard view="risk_accepted" />} />
             <Route path="guide" element={<UserHandbook />} />
           </Route>
         </Route>

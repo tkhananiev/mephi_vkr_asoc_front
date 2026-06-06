@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchCatalogStatus } from '../api/client'
 import type { CatalogStatusResponse } from '../api/types'
-import { IconDatabase, IconLayers, IconProducts, IconPulse, IconReport, IconScan } from '../components/Icons'
+import { IconDatabase, IconLayers, IconProducts, IconReport, IconScan } from '../components/Icons'
 import { ensureProductsLoaded, listProducts } from '../lib/productsStorage'
 import { PageFrame } from '../layout/PageFrame'
 
@@ -71,19 +71,6 @@ export function Dashboard() {
           Действия
         </h2>
         <div className="dashboard-cubes-grid">
-          <Link to="/app/integrations" className="dashboard-cube dashboard-cube--link">
-            <CubeBlock accent="cyan">
-              <IconPulse className="dashboard-cube-block-icon" />
-            </CubeBlock>
-            <div className="dashboard-cube-text">
-              <span className="dashboard-cube-title">Инструменты</span>
-              <span className="dashboard-cube-desc">Каталог SAST / SCA / DAST и статус подключения</span>
-            </div>
-            <span className="dashboard-cube-arrow" aria-hidden>
-              →
-            </span>
-          </Link>
-
           <Link to="/app/products/new" className="dashboard-cube dashboard-cube--link">
             <CubeBlock accent="blue">
               <IconProducts className="dashboard-cube-block-icon" />

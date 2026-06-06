@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
-import { fetchCatalogStatus, runGitleaksScenario, runUnifiedScanScenario } from '../api/client'
+import { fetchCatalogStatus, runScanForApiPath } from '../api/client'
 import type { CatalogStatusResponse, PassportResponse, ScanRequestBody } from '../api/types'
 import { useIntegrationsCatalog } from '../context/IntegrationsCatalogContext'
 import { DEFAULT_SEMGREP_MOUNT_PATH, ensureProductsLoaded, getActiveProduct, listProducts, type StoredProduct } from '../lib/productsStorage'
@@ -147,7 +147,7 @@ function describeProductLine(p: StoredProduct): ReactNode {
       <>
         <strong>{p.name}</strong>
         {' — '}
-        <span className="mono">{p.scanTargetPath}</span> (демо-путь без SCM)
+        <span className="mono">{p.scanTargetPath}</span> (встроенный каталог без SCM)
       </>
     )
   }
@@ -176,6 +176,7 @@ export function ScanRun({ scannerId }: ScanRunProps) {
   const [missingMsg, setMissingMsg] = useState<string | null>(null)
 
   const [targetPath, setTargetPath] = useState('')
+  const [targetUrl, setTargetUrl] = useState('')
   const [semgrepConfig, setSemgrepConfig] = useState(defaultSemgrepCfg)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -189,6 +190,8 @@ export function ScanRun({ scannerId }: ScanRunProps) {
 
   const isMulti = lineup.length > 1
   const scmModeSingle = lineup.length === 1 && !!(lineup[0]?.repositoryUrl ?? '').trim()
+  const inputKind = scanTool?.inputKind
+  const httpTargetMode = inputKind === 'http' || inputKind === 'http_target' || scannerId === 'zap-dast'
 
   useEffect(() => {
     let cancelled = false
@@ -252,6 +255,13 @@ export function ScanRun({ scannerId }: ScanRunProps) {
     const seed = lineup.length === 1 ? lineup[0] : undefined
     if (!seed) {
       setTargetPath('')
+      setTargetUrl('')
+      return
+    }
+    if (httpTargetMode) {
+      const guess = (seed.scanTargetPath ?? '').trim()
+      setTargetUrl(guess.startsWith('http://') || guess.startsWith('https://') ? guess : '')
+      setTargetPath('')
       return
     }
     if ((seed.repositoryUrl ?? '').trim()) {
@@ -259,7 +269,8 @@ export function ScanRun({ scannerId }: ScanRunProps) {
     } else {
       setTargetPath(seed.scanTargetPath ?? DEFAULT_SEMGREP_MOUNT_PATH)
     }
-  }, [lineup])
+    setTargetUrl('')
+  }, [lineup, httpTargetMode])
 
   const refreshCatalog = useCallback(async () => {
     const r = await fetchCatalogStatus()
@@ -291,6 +302,10 @@ export function ScanRun({ scannerId }: ScanRunProps) {
       console_product_id: p.id,
       ...(scannerId === 'semgrep' ? { semgrep_config: semgrepConfig.trim() || undefined } : {}),
     }
+    if (httpTargetMode) {
+      body.target_url = targetUrl.trim() || undefined
+      return body
+    }
     if (useGit) {
       body.git_repository_url = (p.repositoryUrl ?? '').trim()
       body.git_repository_ref = pickBranch || 'main'
@@ -312,10 +327,11 @@ export function ScanRun({ scannerId }: ScanRunProps) {
     setResult(null)
     setQueueDump('')
 
-    const runScan = scannerId === 'gitleaks' ? runGitleaksScenario : runUnifiedScanScenario
+    const apiScanPath =
+      scanTool?.runtime.phase === 'ready' ? scanTool.runtime.apiScanPath : undefined
 
     if (lineup.length === 1) {
-      const out = await runScan(scannerId, bodyForProduct(lineup[0]))
+      const out = await runScanForApiPath(apiScanPath, scannerId, bodyForProduct(lineup[0]))
       setLoading(false)
       if (!out.ok) {
         setError(out.error)
@@ -329,7 +345,7 @@ export function ScanRun({ scannerId }: ScanRunProps) {
     for (let i = 0; i < lineup.length; i++) {
       const p = lineup[i]
       chunks.push(`— продукт «${p.name}» (${p.id}) —`)
-      const out = await runScan(scannerId, bodyForProduct(p))
+      const out = await runScanForApiPath(apiScanPath, scannerId, bodyForProduct(p))
       if (!out.ok) {
         chunks.push(`ОШИБКА: ${out.error}`)
       } else {
@@ -346,7 +362,11 @@ export function ScanRun({ scannerId }: ScanRunProps) {
       ? 'Поиск секретов в коде и истории Git (Gitleaks)'
       : scannerId === 'semgrep'
         ? 'Статический анализ (SAST)'
-        : scanTool?.title?.trim() || scannerId
+        : scannerId === 'trivy-sca'
+          ? 'Анализ зависимостей (SCA, Trivy)'
+          : scannerId === 'zap-dast'
+            ? 'Динамический анализ (DAST)'
+            : scanTool?.title?.trim() || scannerId
   const pageLead =
     idsFromUrl.length > 1
       ? `Очередь из ${idsFromUrl.length} продуктов: пайплайн выполняется для каждого по порядку; результаты пишутся в одно окно ниже.`
@@ -431,25 +451,42 @@ export function ScanRun({ scannerId }: ScanRunProps) {
                 </span>
               </div>
 
-              <details className="field" style={{ marginTop: '-0.25rem' }}>
-                <summary style={{ cursor: 'pointer', fontWeight: 500 }}>
-                  {(isMulti ? 'Дополнительно: путь или подкаталог для всех прогонов' : scmModeSingle)
-                    ? 'Дополнительно: переопределить подкаталог внутри клона только для этого запуска'
-                    : 'Дополнительно: другой каталог кода только для этого запуска'}
-                </summary>
-                <label className="field" style={{ marginTop: '0.75rem', marginBottom: 0 }}>
+              {httpTargetMode ? (
+                <label className="field">
+                  <span>Базовый URL приложения</span>
                   <span className="hint">
-                    {isMulti
-                      ? scmModeSingle
-                        ? 'Одинаковое относительное смещение от корня клона для всех SCM-продуктов в очереди; для демо-продуктов — один и тот же абсолютный путь в образе.'
-                        : 'Подкаталог / путь в образе, одинаково для каждого прогона очереди.'
-                      : scmModeSingle
-                      ? 'относительный путь от корня репозитория после clone; пусто — корень клона'
-                      : 'абсолютный путь внутри среды сканирования'}
+                    Публичный HTTP(S) адрес стенда (не localhost). Секреты и постоянный URL продукта хранятся на сервере — в
+                    следующих итерациях.
                   </span>
-                  <input value={targetPath} onChange={(e) => setTargetPath(e.target.value)} autoComplete="off" spellCheck={false} />
+                  <input
+                    value={targetUrl}
+                    onChange={(e) => setTargetUrl(e.target.value)}
+                    placeholder="https://example.com/app"
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
                 </label>
-              </details>
+              ) : (
+                <details className="field" style={{ marginTop: '-0.25rem' }}>
+                  <summary style={{ cursor: 'pointer', fontWeight: 500 }}>
+                    {(isMulti ? 'Дополнительно: путь или подкаталог для всех прогонов' : scmModeSingle)
+                      ? 'Дополнительно: переопределить подкаталог внутри клона только для этого запуска'
+                      : 'Дополнительно: другой каталог кода только для этого запуска'}
+                  </summary>
+                  <label className="field" style={{ marginTop: '0.75rem', marginBottom: 0 }}>
+                    <span className="hint">
+                      {isMulti
+                        ? scmModeSingle
+                          ? 'Одинаковое относительное смещение от корня клона для всех SCM-продуктов в очереди; для продуктов без SCM используется тот же встроенный абсолютный путь в образе.'
+                          : 'Подкаталог / путь в образе, одинаково для каждого прогона очереди.'
+                        : scmModeSingle
+                          ? 'относительный путь от корня репозитория после clone; пусто — корень клона'
+                          : 'абсолютный путь внутри среды сканирования'}
+                    </span>
+                    <input value={targetPath} onChange={(e) => setTargetPath(e.target.value)} autoComplete="off" spellCheck={false} />
+                  </label>
+                </details>
+              )}
 
               {scannerId === 'semgrep' ? (
                 <label className="field">

@@ -164,7 +164,9 @@ export function ProductEdit() {
           </label>
           <label className="field">
             <span>URI репозитория (SCM)</span>
-            <span className="hint">Без адреса сканирование идёт по демо-пути платформы (WebGoat) внутри образа semgrep-service.</span>
+            <span className="hint">
+              Без адреса используется встроенный каталог платформы (WebGoat) внутри образа semgrep-service.
+            </span>
             <input
               value={repositoryUrl}
               onChange={(e) => setRepositoryUrl(e.target.value)}

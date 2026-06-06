@@ -1,104 +1,213 @@
-import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
+import { BrandLogo } from '../components/BrandLogo'
 import { AuthModal } from '../components/AuthModal'
 import { AuthShell } from '../components/AuthShell'
 
-/** Маркетинговый экран в духе продуктовых лендингов (напр. Semgrep): центр — виджеты, вход/регистрация — модалки. */
-export function MarketingLanding() {
-  const bars = [42, 68, 55, 82, 61, 74, 49]
-  const ringPct = 73
+/** Крупная эмблема «мирного атома» — тот же SVG, что в консоли (`BrandLogo`). */
+function LandingHeroVisual() {
+  return (
+    <div className="landing-hero-visual" aria-hidden>
+      <div className="landing-hero-atom">
+        <BrandLogo size={280} />
+      </div>
+    </div>
+  )
+}
 
+export function MarketingLanding() {
   return (
     <AuthShell>
       <>
-        <div className="marketing-body">
-          <section className="marketing-hero">
-            <h2 className="marketing-headline">
-              Уязвимости под контролем{' '}
-              <span className="marketing-headline-accent">от разработки до продакшена</span>
-            </h2>
-            <p className="marketing-sub">
-              Корреляция CVE и БДУ ФСТЭК, сканеры SAST и постановка задач — единая консоль Atomic ASOC для вашего
-              контура.
-            </p>
-            <div className="marketing-hero-cta">
-              <Link className="btn btn-primary" to={{ pathname: '/', search: '?auth=login' }}>
-                Войти
-              </Link>
-              <Link className="btn btn-ghost" to={{ pathname: '/', search: '?auth=register' }}>
-                Регистрация
-              </Link>
+        <div className="landing-page">
+          <nav className="landing-anchor-nav" aria-label="Разделы лендинга">
+            <a href="#features">Возможности</a>
+            <span className="landing-anchor-sep" aria-hidden>
+              ·
+            </span>
+            <a href="#compare">Сравнение с DefectDojo</a>
+          </nav>
+
+          <section className="landing-hero">
+            <div className="landing-hero-grid">
+              <div className="landing-hero-copy">
+                <p className="landing-overline">ATOMIC ASOC VS DEFECTDOJO</p>
+                <h1 className="landing-title">Надёжный контур ASOC для разработки и управления уязвимостями</h1>
+                <p className="landing-lead">
+                  Единая консоль: корреляция <strong>NVD/CVE</strong> и <strong>БДУ ФСТЭК</strong>, нормализация находок,
+                  SAST (Semgrep) и поиск секретов (Gitleaks), группы и отчёты — масштаб и способ эксплуатации определяете
+                  вы, без навязанной аппаратной или оркестраторной модели на уровне продукта.
+                </p>
+                <div className="landing-hero-cta">
+                  <Link className="landing-btn landing-btn--primary" to={{ pathname: '/', search: '?auth=login' }}>
+                    Перейти в консоль →
+                  </Link>
+                  <Link className="landing-btn landing-btn--ghost" to={{ pathname: '/', search: '?auth=register' }}>
+                    Регистрация
+                  </Link>
+                </div>
+              </div>
+              <LandingHeroVisual />
             </div>
           </section>
 
-          <section className="marketing-widgets" aria-label="Обзор возможностей">
-            <article className="marketing-widget card panel-elevated">
-              <p className="marketing-widget-slogan">Национальная база уязвимостей ФСТЭК России</p>
-              <p className="marketing-widget-hook">
-                Данные БДУ рядом с CVE/NVD и CWE — без отдельных «табличек» и ручной сверки источников.
-              </p>
-              <div className="marketing-chart marketing-chart--bars">
-                {bars.map((h, i) => (
-                  <div key={i} className="marketing-chart-bar-wrap">
-                    <div className="marketing-chart-bar" style={{ height: `${h}%` }} />
-                  </div>
-                ))}
-              </div>
-              <div className="marketing-widget-footer">
-                <span className="marketing-pill marketing-pill--cve">БДУ · CVE</span>
-                <span className="marketing-pill marketing-pill--muted">единый контур данных</span>
-              </div>
-            </article>
-
-            <article className="marketing-widget card panel-elevated">
-              <p className="marketing-widget-slogan">Экономия времени DevSecOps и разработчиков</p>
-              <p className="marketing-widget-hook">
-                Статический анализ и поиск секретов под рукой — меньше прыжков между консолями и чатами.
-              </p>
-              <div className="marketing-donut" style={{ '--pct': ringPct } as CSSProperties}>
-                <span className="marketing-donut-label">{ringPct}%</span>
-              </div>
-              <ul className="marketing-mini-list">
-                <li>SAST · Semgrep</li>
-                <li>Секреты · Gitleaks</li>
-                <li>Ориентиры OWASP ASVS в одном месте</li>
-              </ul>
-            </article>
-
-            <article className="marketing-widget card panel-elevated marketing-widget--wide">
-              <p className="marketing-widget-slogan">
-                Корреляция однотипных уязвимостей в единую задачу на устранение
-              </p>
-              <p className="marketing-widget-hook">
-                Группы находок → понятный приоритет → тикет в Jira: меньше дублей и переписки «кто это возьмёт».
-              </p>
-              <div className="marketing-spark">
-                {[28, 44, 38, 52, 48, 61, 55, 67, 62, 58, 71, 69].map((v, i) => (
-                  <div key={i} className="marketing-spark-cell" style={{ height: `${v}%` }} />
-                ))}
-              </div>
-              <div className="marketing-progress-stack">
-                <div className="marketing-progress-row">
-                  <span>БДУ ФСТЭК</span>
-                  <div className="marketing-progress">
-                    <div className="marketing-progress-fill marketing-progress-fill--bdu" style={{ width: '78%' }} />
-                  </div>
-                </div>
-                <div className="marketing-progress-row">
-                  <span>NVD</span>
-                  <div className="marketing-progress">
-                    <div className="marketing-progress-fill marketing-progress-fill--nvd" style={{ width: '64%' }} />
-                  </div>
-                </div>
-                <div className="marketing-progress-row">
-                  <span>Jira</span>
-                  <div className="marketing-progress">
-                    <div className="marketing-progress-fill marketing-progress-fill--jira" style={{ width: '52%' }} />
-                  </div>
-                </div>
-              </div>
-            </article>
+          <section id="features" className="landing-cards-section" aria-labelledby="landing-features-title">
+            <h2 id="landing-features-title" className="landing-section-title">
+              Почему Atomic ASOC
+            </h2>
+            <div className="landing-cards">
+              <article className="landing-card">
+                <div className="landing-card-icon landing-card-icon--stack" aria-hidden />
+                <h3 className="landing-card-title">Открытый контур</h3>
+                <p className="landing-card-body">
+                  Исходный код и воспроизводимая сборка: микросервисы на Go, общая PostgreSQL, Kafka для ingest, UI на React —
+                  удобно для доработки под вашу инфраструктуру.
+                </p>
+                <p className="landing-card-accent">Прозрачная архитектура и контроль данных на своей площадке</p>
+              </article>
+              <article className="landing-card">
+                <div className="landing-card-icon landing-card-icon--pipeline" aria-hidden />
+                <h3 className="landing-card-title">Интеграция с CI/CD</h3>
+                <p className="landing-card-body">
+                  Приём нормализованных находок по REST, запуск сценариев сканирования по API, привязка прогонов к продукту
+                  в консоли — единый поток для ручных и автоматических проверок.
+                </p>
+                <p className="landing-card-accent">Непрерывный контроль уязвимостей в релизном цикле</p>
+              </article>
+              <article className="landing-card">
+                <div className="landing-card-icon landing-card-icon--scan" aria-hidden />
+                <h3 className="landing-card-title">Каталог сканеров</h3>
+                <p className="landing-card-body">
+                  Расширяемый каталог интеграций: Semgrep, Gitleaks и единый API оркестрации; нормализация перед записью в
+                  processing и выдача в отчёт.
+                </p>
+                <p className="landing-card-accent">Один проход данных от скана до тикета и отчёта</p>
+              </article>
+            </div>
           </section>
+
+          <section id="compare" className="landing-compare-section" aria-labelledby="landing-compare-title">
+            <h2 id="landing-compare-title" className="landing-section-title">
+              В чём разница?
+            </h2>
+            <div className="landing-compare-table-wrap landing-compare-table-wrap--marketing">
+              <div
+                className="landing-compare-matrix"
+                role="table"
+                aria-label="Сравнение Atomic ASOC и DefectDojo"
+              >
+                <div className="landing-compare-matrix__row landing-compare-matrix__row--logos" role="row">
+                  <div className="landing-compare-matrix__corner" role="columnheader" aria-hidden />
+                  <div className="landing-compare-matrix__col" role="columnheader">
+                    <BrandLogo size={48} />
+                  </div>
+                  <div className="landing-compare-matrix__col" role="columnheader">
+                    <span className="landing-compare-dojo-mark" aria-hidden>
+                      d
+                    </span>
+                  </div>
+                </div>
+                <div className="landing-compare-matrix__row landing-compare-matrix__row--brands" role="row">
+                  <div className="landing-compare-matrix__corner" role="columnheader" aria-hidden />
+                  <div className="landing-compare-matrix__col" role="columnheader">
+                    <span className="landing-compare-brand landing-compare-brand--atomic">Atomic ASOC</span>
+                  </div>
+                  <div className="landing-compare-matrix__col" role="columnheader">
+                    <span className="landing-compare-brand landing-compare-brand--dojo">DefectDojo</span>
+                  </div>
+                </div>
+                <div className="landing-compare-matrix__row" role="row">
+                  <div className="landing-compare-matrix__label" role="rowheader">
+                    Цена
+                  </div>
+                  <div className="landing-compare-matrix__val" role="cell">
+                    Бесплатно
+                  </div>
+                  <div className="landing-compare-matrix__val" role="cell">
+                    Бесплатно
+                  </div>
+                </div>
+                <div className="landing-compare-matrix__row" role="row">
+                  <div className="landing-compare-matrix__label" role="rowheader">
+                    Оркестрация сканерами
+                  </div>
+                  <div className="landing-compare-matrix__val" role="cell">
+                    <span className="landing-ok" aria-hidden />
+                    <span>По API</span>
+                  </div>
+                  <div className="landing-compare-matrix__val" role="cell">
+                    <span className="landing-no" aria-hidden />
+                    <span>Нет, только отчёты</span>
+                  </div>
+                </div>
+                <div className="landing-compare-matrix__row" role="row">
+                  <div className="landing-compare-matrix__label" role="rowheader">
+                    Кастомизация из коробки
+                  </div>
+                  <div className="landing-compare-matrix__val" role="cell">
+                    <span className="landing-ok" aria-hidden />
+                    <span>Да</span>
+                  </div>
+                  <div className="landing-compare-matrix__val landing-compare-matrix__val--wrap" role="cell">
+                    <span className="landing-ruble" aria-hidden />
+                    <span>Требует доработки</span>
+                  </div>
+                </div>
+                <div className="landing-compare-matrix__row" role="row">
+                  <div className="landing-compare-matrix__label" role="rowheader">
+                    Высокая производительность
+                  </div>
+                  <div className="landing-compare-matrix__val" role="cell">
+                    <span className="landing-ok" aria-hidden />
+                    <span>Из коробки</span>
+                  </div>
+                  <div className="landing-compare-matrix__val" role="cell">
+                    <span className="landing-no" aria-hidden />
+                    <span>Нет</span>
+                  </div>
+                </div>
+                <div className="landing-compare-matrix__row" role="row">
+                  <div className="landing-compare-matrix__label" role="rowheader">
+                    Продвинутые сценарии автоматизации
+                  </div>
+                  <div className="landing-compare-matrix__val" role="cell">
+                    <span className="landing-ok" aria-hidden />
+                    <span>Из коробки</span>
+                  </div>
+                  <div className="landing-compare-matrix__val" role="cell">
+                    <span className="landing-no" aria-hidden />
+                    <span>Нет</span>
+                  </div>
+                </div>
+                <div className="landing-compare-matrix__row landing-compare-matrix__row--last" role="row">
+                  <div className="landing-compare-matrix__label" role="rowheader">
+                    Работа с БДУ ФСТЭК
+                  </div>
+                  <div className="landing-compare-matrix__val" role="cell">
+                    <span className="landing-ok" aria-hidden />
+                    <span>Да</span>
+                  </div>
+                  <div className="landing-compare-matrix__val" role="cell">
+                    <span className="landing-no" aria-hidden />
+                    <span>Нет</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="landing-compare-footnote">
+              DefectDojo —{' '}
+              <a href="https://github.com/DefectDojo/django-DefectDojo" target="_blank" rel="noreferrer">
+                open-source
+              </a>{' '}
+              платформа импорта отчётов; сравнение по ключевым возможностям для контура DevSecOps.
+            </p>
+          </section>
+
+          <footer className="landing-foot">
+            <p>
+              Atomic ASOC — централизованная консоль для управления результатами анализа и уязвимостями в контуре
+              разработки. Открытый исходный код; сборка и эксплуатация — на вашей стороне.
+            </p>
+          </footer>
         </div>
 
         <AuthModal />
