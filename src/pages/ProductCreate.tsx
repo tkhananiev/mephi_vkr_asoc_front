@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { BranchListEditor } from '../components/BranchListEditor'
 import { PageFrame } from '../layout/PageFrame'
 import { createProduct, dedupeBranches, DEFAULT_SEMGREP_MOUNT_PATH } from '../lib/productsStorage'
 import { isValidRepoUrl } from '../lib/repoUrl'
@@ -12,22 +13,6 @@ export function ProductCreate() {
   const [repositorySubdirectory, setRepositorySubdirectory] = useState('')
   const [branches, setBranches] = useState<string[]>(['main'])
   const [err, setErr] = useState<string | null>(null)
-
-  function updateBranch(idx: number, val: string) {
-    setBranches((prev) => {
-      const next = [...prev]
-      next[idx] = val
-      return next
-    })
-  }
-
-  function addBranch() {
-    setBranches((prev) => [...prev, ''])
-  }
-
-  function removeBranch(idx: number) {
-    setBranches((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== idx)))
-  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
@@ -113,30 +98,9 @@ export function ProductCreate() {
               <div className="field">
                 <span>Ветки для сканирования</span>
                 <span className="hint">
-                  Укажите одну или несколько веток (или тегов); при запуске SAST выберете, какую из списка клонировать.
+                  Выберите одну или несколько веток из репозитория; при запуске сканирования выберете, какую из списка клонировать.
                 </span>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {branches.map((b, idx) => (
-                    <div key={idx} style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                      <input
-                        value={b}
-                        onChange={(e) => updateBranch(idx, e.target.value)}
-                        placeholder={idx === 0 ? 'main' : 'например: develop'}
-                        autoComplete="off"
-                        spellCheck={false}
-                        style={{ flex: 1 }}
-                      />
-                      {branches.length > 1 ? (
-                        <button type="button" className="btn btn-ghost" onClick={() => removeBranch(idx)} aria-label="Удалить ветку">
-                          ×
-                        </button>
-                      ) : null}
-                    </div>
-                  ))}
-                  <button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', fontSize: '0.85rem' }} onClick={addBranch}>
-                    + добавить ветку
-                  </button>
-                </div>
+                <BranchListEditor repositoryUrl={repositoryUrl} branches={branches} onChange={setBranches} />
               </div>
               <label className="field">
                 <span>Подкаталог в репозитории</span>

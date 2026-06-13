@@ -140,6 +140,21 @@ export function dedupeBranches(branches: string[]): string[] {
   return out.length > 0 ? out : ['main']
 }
 
+export async function fetchRepositoryBranches(repositoryUrl: string): Promise<string[]> {
+  const url = repositoryUrl.trim()
+  if (!url) {
+    throw new Error('URI репозитория не задан')
+  }
+  const qs = new URLSearchParams({ repository_url: url })
+  const res = await apiFetch(`/api/v1/console/repository-branches?${qs.toString()}`)
+  if (!res.ok) {
+    const hint = await readErrorHint(res)
+    throw new Error(hint ?? `Не удалось загрузить ветки (HTTP ${res.status})`)
+  }
+  const data = (await res.json()) as { branches?: string[] }
+  return Array.isArray(data.branches) ? data.branches.filter((b) => (b ?? '').trim()) : []
+}
+
 export async function createProduct(
   name: string,
   description: string,
@@ -224,6 +239,29 @@ export async function updateProduct(
   const p = mapRow(row)
   cache = cache ? cache.map((x) => (x.id === p.id ? p : x)) : [p]
   return p
+}
+
+export async function updateProductBranches(id: number, branches: string[]): Promise<StoredProduct> {
+  invalidateProductsCache()
+  const rows = await listProducts()
+  const p = rows.find((x) => x.id === id)
+  if (!p) {
+    throw new Error('Продукт не найден')
+  }
+  if (!p.repositoryUrl?.trim()) {
+    throw new Error('Ветки задаются только для продукта с URI репозитория')
+  }
+  const norm = dedupeBranches(branches)
+  return updateProduct(
+    p.id,
+    p.name,
+    p.description,
+    p.repositoryUrl,
+    norm[0] ?? 'main',
+    p.repositorySubdirectory,
+    p.scanTargetPath,
+    norm,
+  )
 }
 
 export async function deleteProduct(id: number): Promise<void> {
